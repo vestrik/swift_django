@@ -11,7 +11,38 @@
     <body>
         <header>
             <div class="header-container">
-
+                <nav class="navbar">
+                    <ul>
+                        {% if user.get_username %}
+                        <li>
+                            <div>                                
+                                <form action="{% url 'calculation_sheet:home' %}">
+                                    <button class="base_button">Расчетные листы</button>
+                                </form>
+                            </div>
+                        </li>
+                        <li class="li_right_side">
+                            <div class="logout">
+                                <form class="logout_form" action="{% url 'accounts:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="base_button">Выйти</button>
+                                </form>
+                            </div>
+                        </li>
+                        <li class="li_right_side">           
+                            <div class="username_field">
+                                Вы вошли как: <span class="user_name">{{ user.get_username }}</span>
+                            </div>
+                        </li>
+                        {% else %}
+                        <li>
+                            <form action="{% url 'accounts:login'%}">
+                            <button  class="base_button">Войти</button>
+                            </form>
+                        </li>   
+                        {% endif %}                     
+                    </ul>
+                </nav>
             </div>            
         </header>
 
