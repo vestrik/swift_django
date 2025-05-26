@@ -4,16 +4,19 @@ from django.utils import timezone
 # Create your models here.
 
 HAS_NDS_CHOICES = {
+    None: '',
     'Y': 'Y',
     'N': 'N',
 }
 
 CALC_ROW_TYPE_CHOICES = {
+    None: '',
     'Доход': 'Доход',
     'Расход': 'Расход',
 }
 
 CURRENCY_CHOICES = {
+    None: '',
     'RUB': 'RUB',
     'CNY': 'CNY',
     'USD': 'USD',    
