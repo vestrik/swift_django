@@ -18,7 +18,8 @@ def login_view(request):
 
 
 def logout_view(request):
-    if request.method == 'POST':
+    print(request.method)
+    if request.method == 'GET':
         logout(request)
         return redirect('calculation_sheet:home')
     else:
