@@ -24,12 +24,17 @@ CURRENCY_CHOICES = {
     'KZT': 'KZT',    
 }
 
-
 class CalculationSheet(models.Model):
     author = models.CharField(max_length=100)
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(default=timezone.now)
     slug = models.SlugField(max_length=200, editable=False)
     order_no = models.CharField(max_length=100)
+
+    
+class CalculationSheetRow(models.Model):
+    author = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now)
+    calculation_sheet = models.ForeignKey(CalculationSheet, on_delete=models.DO_NOTHING, null=True)
     calc_row_type = models.CharField(max_length=100, blank=False, choices=CALC_ROW_TYPE_CHOICES)
     calc_row_contragent = models.CharField(max_length=500)
     calc_row_service_name = models.CharField(max_length=200)
