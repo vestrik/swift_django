@@ -1,0 +1,64 @@
+:root {
+  --primary-color: #2C3E50;    /* Темно-синий для заголовков и акцентов */
+  --secondary-color: #3498DB;  /* Мягкий синий для второстепенных элементов */
+  --accent-color: #E67E22;     /* Теплый оранжевый для кнопок и выделения */
+  --background-color: #F9F9F9; /* Светлый фон */
+  --text-color: #34495E;       /* Основной цвет текста */
+  --success-color: #27AE60;    /* Зеленый для позитивных элементов */
+  --light-gray: #ECF0F1;       /* Светло-серый для фона секций */
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 20px;
+}
+
+h1, h2, h3 {
+  color: var(--primary-color);
+  font-weight: 500;
+  margin: 1.5rem 0;
+}
+
+a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 25px;
+  background-color: var(--accent-color);
+  color: white;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin: 1rem 0;
+}
+
+.navbar {
+  background: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
