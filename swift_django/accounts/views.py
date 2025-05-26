@@ -17,10 +17,6 @@ def login_view(request):
     return render(request, 'accounts/login.html', {'form':form})
 
 
-def logout_view(request):
-    print(request.method)
-    if request.method == 'GET':
-        logout(request)
-        return redirect('calculation_sheet:home')
-    else:
-        return HttpResponse('logout error')
+def logout_view(request):    
+    logout(request)
+    return redirect('calculation_sheet:home')
