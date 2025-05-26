@@ -10,7 +10,7 @@
 
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
-  line-height: 1.6;
+  
   color: var(--text-color);
   background-color: var(--background-color);
   margin: 0;
@@ -33,18 +33,18 @@ a:hover {
   color: var(--accent-color);
 }
 
-.btn {
+.base_button {
   display: inline-block;
-  padding: 12px 25px;
+  padding: 12px 12px;
   background-color: var(--accent-color);
   color: white;
-  border-radius: 25px;
+  border-radius: 16px;
   border: none;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn:hover {
+.base_button:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
 }
@@ -57,8 +57,40 @@ a:hover {
   margin: 1rem 0;
 }
 
+
+/* Навигационное меню */
+
 .navbar {
   background: white;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.navbar ul {
+  margin: 0;
+  padding: 0;
+}
+  
+.navbar li {
+  display: inline-block;
+  margin: 5px;
+}
+
+.navbar .li_right_side {
+  float: right;
+}
+
+.navbar .user_name {
+  color: green;
+}
+
+.navbar .username_field {    
+  margin-top: 0.5rem;
+  color: black;
+}
+
+/* -------- */
+
+body main {
+  margin: 10px 0;
 }
