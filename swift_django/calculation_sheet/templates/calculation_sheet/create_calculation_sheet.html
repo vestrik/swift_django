@@ -1,19 +1,26 @@
 {% extends 'base_layout.html' %}
 
 {% block content %}
+
+
 <div class="create-calculation-sheet">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ calc_sheet_form.as_p }}
-        <span>====================</span>
+        <div class="order-data card">
+            {{ calc_sheet_form.as_ul }}
+            Направление: <input type="text" id="order-data_department" disabled>
+            КТК: <input type="text" id="order-data_ktk" disabled>
+            Клиент: <input type="text" id="order-data_client" disabled>
+            Станция, от: <input type="text" id="order-data_station_from" disabled>
+            Станция, до: <input type="text" id="order-data_station_to" disabled>
+        </div>
         {{ row_formset.management_form }}
 
         <div id="formset">
             {% for row_form in row_formset %}
-                <div class="form-row">
-                    {{row_form.as_p}}
+                <div class="form-row card">
+                    {{row_form.as_table}}
                 </div>
-                <span>------</span>
             {% endfor %}
         </div>       
         <button class="base_button" type="submit">Создать</button>
@@ -21,4 +28,46 @@
     </form>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+
+
+<script>
+$( function() {
+    d = {{ data|safe }}
+    $( "#id_order_no" ).autocomplete({
+        source: d 
+    });
+} );
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#id_order_no').focusout(function () {
+            var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+            var order_no = $('#id_order_no').val();
+            if (order_no.length == 16 && order_no.startsWith('MOS')) {
+                $.ajax({
+                    data: {'job_num': $('#id_order_no').val()},
+                    dataType: "json",
+                    type: 'POST',
+                    url: "{% url 'calculation_sheet:fetch_data_for_order' %}",
+                    headers: {
+                        'X-CSRFToken': csrftoken // Установка CSRF-токена в заголовок
+                    },
+                    success: function(data) {                    
+                        $("#order-data_department").val(data.department);
+                        $("#order-data_ktk").val(data.box);
+                        $("#order-data_client").val(data.client);
+                        $("#order-data_station_from").val(data.station_from);
+                        $("#order-data_station_to").val(data.station_to);
+                        
+                    }
+                })
+            }
+        })
+    })
+</script>
 {% endblock %}
+
