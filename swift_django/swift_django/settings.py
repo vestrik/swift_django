@@ -84,9 +84,16 @@ DATABASES = {
         "PASSWORD": "ATAfSATA1",
         "HOST": "192.168.1.72",
         "PORT": "3306",
+    },
+    'sol_cargo': {
+        'ENGINE': 'django.db.backends.mysql',
+        "NAME": "sol_cargo",
+        "USER": "mysqluser",
+        "PASSWORD": "ATAuser2",
+        "HOST": "192.168.1.72",
+        "PORT": "3306",
     }
 }
-
 
 
 # Password validation
