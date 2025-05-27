@@ -4,10 +4,21 @@
 <div class="create-calculation-sheet">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{form.as_p}}
-        <div class="create-btn">
-            <button class="base_button" type="submit">Создать</button>
-        </div>
+        {{ calc_sheet_form.as_p }}
+        <span>====================</span>
+        {{ row_formset.management_form }}
+
+        <div id="formset">
+            {% for row_form in row_formset %}
+                <div class="form-row">
+                    {{row_form.as_p}}
+                </div>
+                <span>------</span>
+            {% endfor %}
+        </div>       
+        <button class="base_button" type="submit">Создать</button>
+        
     </form>
 </div>
+
 {% endblock %}
