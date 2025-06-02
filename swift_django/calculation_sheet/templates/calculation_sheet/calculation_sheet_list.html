@@ -7,8 +7,7 @@
         <button class="base_button">Создать р\л</button>
     </form>
     {% for calc_sheet in calc_sheets %}    
-        <div class="card">{{ calc_sheet.order_no }}</div>
-        
+        <div class="card"><a href="{% url 'calculation_sheet:view_info' calc_sheet.id %}">{{ calc_sheet.order_no }} {{ calc_sheet.calc_sheet_no}}</a></div>        
     {% endfor %}
 </div>
 

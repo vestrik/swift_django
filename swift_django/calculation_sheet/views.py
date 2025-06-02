@@ -106,3 +106,9 @@ def fetch_data_for_order(request):
     else: 
         return_data = {}
     return JsonResponse(return_data)
+
+def view_info(request, id):
+    calc_sheets = CalculationSheetRow.objects.filter(calculation_sheet_id=id)    
+    
+    return render(request, 'calculation_sheet/calculation_sheet_info.html', {'calc_sheets': calc_sheets })
+    

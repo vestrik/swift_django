@@ -1,0 +1,43 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+
+<div>
+    <div class="card">
+        <table>
+            <thead>
+                <tr class="calc-row">
+                    <th>Доход\Расход</th>
+                    <th>Клиент\Поставщик</th>
+                    <th>Статья услуг</th>
+                    <th>Валюта</th>
+                    <th>Кол-во</th>
+                    <th>Цена за ед. (в валюте)</th>
+                    <th>Курс</th>
+                    <th>НДС</th>
+                    <th>Сумма НДС (в валюте)</th>
+                    <th>Ставка без НДС  (в валюте)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for calc_sheet in calc_sheets %}
+                    <tr>
+                        <td>{{ calc_sheet.calc_row_type }}</td>
+                        <td>{{ calc_sheet.calc_row_contragent }}</td>
+                        <td>{{ calc_sheet.calc_row_service_name }}</td>
+                        <td>{{ calc_sheet.calc_row_currency }}</td>
+                        <td>{{ calc_sheet.calc_row_count }}</td>
+                        <td>{{ calc_sheet.calc_row_single_amount }}</td>
+                        <td>{{ calc_sheet.calc_row_exchange_rate }}</td>
+                        <td>{{ calc_sheet.calc_row_has_nds }}</td>
+                        <td>{{ calc_sheet.calc_row_ttl_nds_price }}</td>
+                        <td>{{ calc_sheet.calc_row_ttl_price_without_nds }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
+{% endblock %}
