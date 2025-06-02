@@ -31,6 +31,19 @@
                 </div>
             </div>
         </div>
+        <div class="card calculation-list-total-info">
+            <p class="calculation-sheet-card-name">Итог</p>
+            <div class="div_horizontal">
+                <p>Доход</p>
+                <input type="text" id="debit-total-sum_1" disabled>
+                <p>Расход</p>
+                <input type="text" id="credit-total-sum_1" disabled>
+                <p>Маржа</p>
+                <input type="text" id="margin-total-sum" disabled>
+                <p>% маржи</p>
+                <input type="text" id="margin-total-percent" disabled>
+            </div>
+        </div>
         <div class="card">
             <p class="calculation-sheet-card-name">Доход</p>
             {{ debit_row_formset.management_form }}
@@ -75,7 +88,7 @@
                         </div>            
                         <div class="calculation-sheet-total">
                             <div class="calculation-sheet-total-label"><p>Итого:</p></div>
-                            <div class="calculation-sheet-total-value"><input type="number" id="debit-total-sum"></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="debit-total-sum_2"></div>
                             <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
                         </div>
                     </div>
@@ -126,7 +139,7 @@
                         </div>            
                         <div class="calculation-sheet-total">
                             <div class="calculation-sheet-total-label"><p>Итого:</p></div>
-                            <div class="calculation-sheet-total-value"><input type="number" id="credit-total-sum"></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="credit-total-sum_2"></div>
                             <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
                         </div>
                     </div>
@@ -163,10 +176,16 @@
         
         // Определяем тип таблицы (debit/credit) и обновляем соответствующий итог
         if ($(table).hasClass('debit_table')) {
-            $('#debit-total-sum').val(total_sum.toFixed(2));
+            $('#debit-total-sum_1').val(total_sum.toFixed(2));
+            $('#debit-total-sum_2').val(total_sum.toFixed(2));
         } else if ($(table).hasClass('credit_table')) {
-            $('#credit-total-sum').val(total_sum.toFixed(2));
+            $('#credit-total-sum_1').val(total_sum.toFixed(2));
+            $('#credit-total-sum_2').val(total_sum.toFixed(2));
         }
+        var margin_sum = $('#debit-total-sum_1').val() - $('#credit-total-sum_1').val() || 0;
+        var margin_prcnt = margin_sum / $('#debit-total-sum_1').val() * 100 || 0;
+        $('#margin-total-sum').val(margin_sum.toFixed(2));
+        $('#margin-total-percent').val(margin_prcnt + ' %')
     }
 
     // Вынесли логику автокомплита в функцию
