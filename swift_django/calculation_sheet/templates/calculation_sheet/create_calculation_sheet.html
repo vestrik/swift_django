@@ -67,10 +67,17 @@
                             </tr>
                         {% endfor %}
                         </tbody>
-                    </table>
-                    <div class="flex-div">
-                        <input class="base_button" type="button" value=" + " id="debit row_form_add_more">
-                        <input class="base_button" type="button" value=" - " id="debit row_form_remove">
+                    </table>                    
+                    <div class="calculation-sheet-button-and-total">
+                        <div class="calculation-sheet-buttons">
+                            <input class="base_button" type="button" value=" + " id="debit row_form_add_more">
+                            <input class="base_button" type="button" value=" - " id="debit row_form_remove">
+                        </div>            
+                        <div class="calculation-sheet-total">
+                            <div class="calculation-sheet-total-label"><p>Итого:</p></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="debit-total-sum"></div>
+                            <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
+                        </div>
                     </div>
                 </div>            
         </div>  
@@ -112,9 +119,16 @@
                         {% endfor %}                
                         </tbody>
                     </table>
-                    <div class="flex-div">
-                        <input class="base_button" type="button" value=" + " id="credit row_form_add_more">
-                        <input class="base_button" type="button" value=" - " id="credit row_form_remove">
+                    <div class="calculation-sheet-button-and-total">
+                        <div class="calculation-sheet-buttons">
+                            <input class="base_button" type="button" value=" + " id="credit row_form_add_more">
+                            <input class="base_button" type="button" value=" - " id="credit row_form_remove">
+                        </div>            
+                        <div class="calculation-sheet-total">
+                            <div class="calculation-sheet-total-label"><p>Итого:</p></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="credit-total-sum"></div>
+                            <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
+                        </div>
                     </div>
                 </div>
             
@@ -131,14 +145,28 @@
 
 <script>
     
-    function calculateCreditRow(row) {
-        var count = parseFloat(row.find('input[id$="calc_row_count"]').val()) || 0;
-        var price = parseFloat(row.find('input[id$="calc_row_single_amount"]').val()) || 0;
+    function calculateRowSum(row) {
         var exchange_rate = parseFloat(row.find('input[id$="calc_row_exchange_rate"]').val()) || 0; 
         var nds = parseFloat(row.find('input[id$="calc_row_ttl_nds_price"]').val()) || 0; 
         var without_nds = parseFloat(row.find('input[id$="calc_row_ttl_price_without_nds"]').val()) || 0; 
         var result = (nds + without_nds) * exchange_rate || 0;
         row.find('input.autocalc').val(result.toFixed(2));
+    }
+
+    function calculateTotalTable(table) {
+        var total_sum = 0;
+        // Суммируем все значения в столбце "Сумма, руб."
+        $(table).find('tbody tr.calc-row').each(function() {
+            var row_sum = parseFloat($(this).find('input.autocalc').val()) || 0;
+            total_sum += row_sum;
+        });
+        
+        // Определяем тип таблицы (debit/credit) и обновляем соответствующий итог
+        if ($(table).hasClass('debit_table')) {
+            $('#debit-total-sum').val(total_sum.toFixed(2));
+        } else if ($(table).hasClass('credit_table')) {
+            $('#credit-total-sum').val(total_sum.toFixed(2));
+        }
     }
 
     // Вынесли логику автокомплита в функцию
@@ -201,14 +229,21 @@
   
 
     $(document).ready(function() {
+
+        
     
         $('tr.calc-row').each(function() {
-            calculateCreditRow($(this));
+            calculateRowSum($(this));
         });
+
+        calculateTotalTable($('.debit_table'));
+        calculateTotalTable($('.credit_table'));
 
         // При вводе данных в эти инпуты выполняем пересчет
         $('body').on('input', 'input[id$="calc_row_exchange_rate"], input[id$="calc_row_ttl_nds_price"], input[id$="calc_row_ttl_price_without_nds"]', function() {
-            calculateCreditRow($(this).closest('tr.calc-row'));
+            var row = $(this).closest('tr.calc-row');
+            calculateRowSum(row);
+            calculateTotalTable(row.closest('table')); // Пересчет таблицы после изменения строки
         });
 
         // Инициализируем на уже имеющихся полях
@@ -217,7 +252,9 @@
         initClientAutocomplete($("input[id$='calc_row_contragent']"));
 
         // Делаем элементы обязательными для заполнения
-        $("div[class='form-row']").find('input').prop('required',true);
+        $("div[class='form-row']").find('table').find('input').prop('required', true);
+        // Кроме этих
+        $("div[class='form-row']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
         $("div[class='form-row']").find('select').prop('required',true);
 
         // Добавление строк
@@ -257,7 +294,8 @@
         // Инициализируем автокомплит на новом input
         setAutocomplete(newRow.find("input[id$='calc_row_service_name']"), articleServicesData);
         initClientAutocomplete($("input[id$='calc_row_contragent']"));
-        calculateCreditRow(newRow);        
+        calculateRowSum(newRow);      
+        calculateTotalTable(newRow.closest('table')); // Пересчет после добавления  
 
         });
 
@@ -271,7 +309,10 @@
             }
             // Уменьшаем кол-во форм на 1
             var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
-            $('#id_' + type + '-TOTAL_FORMS').val(total - 1);
+            $('#id_' + type + '-TOTAL_FORMS').val(total - 1);            
+            
+            var table = $("table." + type + "_table");
+            calculateTotalTable(table); // Пересчет после удаления
         });
 
     

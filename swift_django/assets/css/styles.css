@@ -7,7 +7,6 @@
   --success-color: #27AE60;    /* Зеленый для позитивных элементов */
   --light-gray: #ECF0F1;       /* Светло-серый для фона секций */
 }
-
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;  
   color: var(--text-color);
@@ -15,23 +14,17 @@ body {
   margin: 0;
   padding: 20px;
 }
-
 h1, h2, h3 {
   color: var(--primary-color);
   font-weight: 500;
   margin: 1.5rem 0;
 }
-
 a {
   color: var(--secondary-color);
   text-decoration: none;
   transition: color 0.3s ease;
 }
-
-a:hover {
-  color: var(--accent-color);
-}
-
+a:hover {color: var(--accent-color);}
 .base_button {
   display: inline-block;
   padding: 12px 12px;
@@ -42,12 +35,10 @@ a:hover {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .base_button:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
 }
-
 .card {
   background: white;
   border-radius: 12px;
@@ -55,11 +46,7 @@ a:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   margin: 1rem 0;
 }
-
-body main {
-  margin: 10px 0;
-}
-
+body main {margin: 10px 0;}
 /* Убираем стрелочки "вверх" и "вниз" у числовых инпутов */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -67,40 +54,23 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
-/* Навигационное меню */
-
+/* ---------------- Навигационное меню ---------------- */
 .navbar {
   background: white;
   padding: 10px 0;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
-
-.navbar ul {
-  margin: 0;
-  padding: 0;
-}
-  
-.navbar li {
-  display: inline-block;
-  margin: 5px;
-}
-
-.navbar .li_right_side {
-  float: right;
-}
-
-.navbar .user_name {
-  color: green;
-}
-
+.navbar ul {margin: 0;padding: 0;}  
+.navbar li {display: inline-block;margin: 5px;}
+.navbar .li_right_side {float: right;}
+.navbar .user_name {color: green;}
 .navbar .username_field {    
   margin-top: 0.5rem;
   color: black;
 }
+/* ------------------------------------------------------ */
 
-/* -------- */
-
-/* -------- Расчетный лист -------- */
+/* ------------------- Расчетный лист ------------------- */
 
 .calculation-sheet-card-name {
   font-size: large;
@@ -109,14 +79,8 @@ input::-webkit-inner-spin-button {
 }
 
 /* Карточка с данными по заявке */
-.order-data {
-  display: flex;
-}
-
-.order-data p {
-  margin: 0px;
-  padding: 3px;
-}
+.order-data {display: flex;}
+.order-data p {margin: 0px;padding: 3px;}
 
 .order-data .order-data_user-input input {
   width: 180px;
@@ -129,43 +93,16 @@ input::-webkit-inner-spin-button {
   border-color: rgba(118, 118, 118, 0.3);
   background-color: rgba(255, 161, 161, 0.3);
 }
-
-.order-data_user-input {
-  padding-left: 16px;
-  width: 15%;
-  min-width: 220px;
-}
-
-.order-data_fetched {
-  padding-left: 16px;
-  padding:5px
-}
-
-.order-data_fetched * {
-  margin: 5px;
-  padding: 5px;
-}
+.order-data_user-input {padding-left: 16px;width: 15%;min-width: 220px;}
+.order-data_fetched {padding-left: 16px;padding:5px}
+.order-data_fetched * {margin: 5px;padding: 5px;}
 
 /* Карточка с доходами/расходами */ 
-.div_horizontal {
-  display: flex;
-  padding: 0px;
-}
-
-.form-row {
-  margin: 0px 16px;
-}
-
-.calc_row_type_hidden {
-  display: none;
-}
-.form-row table {
-  width: 100%;
-}
-.form-row td {
-  padding: 0px 5px;
-}
-
+.div_horizontal {display: flex;padding: 0px;}
+.form-row {margin: 0px 16px;}
+.calc_row_type_hidden {display: none;}
+.form-row table {width: 100%;}
+.form-row td {padding: 0px 5px;}
 .form-row input, select {
   height: 100%;
   width: 100%;
@@ -175,15 +112,8 @@ input::-webkit-inner-spin-button {
   color: rgb(84, 84, 84);
   border-color: rgba(118, 118, 118, 0.3);
 }
-
-.form-row input[id$="calc_row_contragent"], input[id$="calc_row_service_name"] {
-  min-width: 180px;
-}
-
-.form-row input[id$="calc_row_count"], input[id$="calc_row_single_amount"], input[id$="calc_row_exchange_rate"]  {
-  min-width: 100px;
-}
-
+.form-row input[id$="calc_row_contragent"], input[id$="calc_row_service_name"] {min-width: 180px;}
+.form-row input[id$="calc_row_count"], input[id$="calc_row_single_amount"], input[id$="calc_row_exchange_rate"]  {min-width: 100px;}
 input[id$='row_form_add_more'], input[id$='row_form_remove'] {
   margin: 5px 5px 0px 0px;
   padding: 6px;
@@ -194,7 +124,11 @@ input[id$='row_form_add_more'], input[id$='row_form_remove'] {
   border: #F9F9F9;
 
 }
+.calculation-sheet-buttons, .calculation-sheet-total-label, .calculation-sheet-total-value, .calculation-sheet-total-rub-label {display: inline-block;}
+.calculation-sheet-total {float: right;  }
+.calculation-sheet-total p {margin: 3px;}
+input[id='debit-total-sum'] {min-width: 100px;width: 120px;}
+.calculation-sheet-total-rub-label {margin-left: 3px;}
 
-.flex-div {
-  display: flex;
- }
+/* ------------------------------------------------------ */
+
