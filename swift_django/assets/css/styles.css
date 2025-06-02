@@ -9,8 +9,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  
+  font-family: 'Segoe UI', system-ui, sans-serif;  
   color: var(--text-color);
   background-color: var(--background-color);
   margin: 0;
@@ -52,11 +51,21 @@ a:hover {
 .card {
   background: white;
   border-radius: 12px;
-  padding: 2rem;
+  padding: 8px 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   margin: 1rem 0;
 }
 
+body main {
+  margin: 10px 0;
+}
+
+/* Убираем стрелочки "вверх" и "вниз" у числовых инпутов */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 /* Навигационное меню */
 
@@ -91,6 +100,101 @@ a:hover {
 
 /* -------- */
 
-body main {
-  margin: 10px 0;
+/* -------- Расчетный лист -------- */
+
+.calculation-sheet-card-name {
+  font-size: large;
+  font-weight: 750;
+  margin: 8px 16px;
 }
+
+/* Карточка с данными по заявке */
+.order-data {
+  display: flex;
+}
+
+.order-data p {
+  margin: 0px;
+  padding: 3px;
+}
+
+.order-data .order-data_user-input input {
+  width: 180px;
+  height: 15px;
+  padding: 5px;
+  margin: 5px;
+  border-width:1.6px;
+  border-style: inset;
+  color: rgb(84, 84, 84);
+  border-color: rgba(118, 118, 118, 0.3);
+  background-color: rgba(255, 161, 161, 0.3);
+}
+
+.order-data_user-input {
+  padding-left: 16px;
+  width: 15%;
+  min-width: 220px;
+}
+
+.order-data_fetched {
+  padding-left: 16px;
+  padding:5px
+}
+
+.order-data_fetched * {
+  margin: 5px;
+  padding: 5px;
+}
+
+/* Карточка с доходами/расходами */ 
+.div_horizontal {
+  display: flex;
+  padding: 0px;
+}
+
+.form-row {
+  margin: 0px 16px;
+}
+
+.calc_row_type_hidden {
+  display: none;
+}
+.form-row table {
+  width: 100%;
+}
+.form-row td {
+  padding: 0px 5px;
+}
+
+.form-row input, select {
+  height: 100%;
+  width: 100%;
+  min-width: 55px;
+  border-width: 1px;
+  border-style: inset;
+  color: rgb(84, 84, 84);
+  border-color: rgba(118, 118, 118, 0.3);
+}
+
+.form-row input[id$="calc_row_contragent"], input[id$="calc_row_service_name"] {
+  min-width: 180px;
+}
+
+.form-row input[id$="calc_row_count"], input[id$="calc_row_single_amount"], input[id$="calc_row_exchange_rate"]  {
+  min-width: 100px;
+}
+
+input[id$='row_form_add_more'], input[id$='row_form_remove'] {
+  margin: 5px 5px 0px 0px;
+  padding: 6px;
+  min-width: 20px;
+  width: 50px;
+  font-weight: 400;
+  color: #F9F9F9;
+  border: #F9F9F9;
+
+}
+
+.flex-div {
+  display: flex;
+ }

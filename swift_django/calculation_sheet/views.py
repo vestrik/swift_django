@@ -4,7 +4,7 @@ from django.forms import  inlineformset_factory
 from django.db import connections
 from django.http import JsonResponse
 
-from .forms import CalculationSheetForm, CalculationSheetRowForm
+from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
 from .models import CalculationSheet, CalculationSheetRow
 
 # Create your views here.
@@ -19,26 +19,40 @@ def create_calculation_sheet(request):
     """ Создаем расчетный лист """
     
     # Formset
-    CalculationSheetRowFormSet = inlineformset_factory(parent_model=CalculationSheet, model=CalculationSheetRow, 
-        form=CalculationSheetRowForm, extra=3)
-    
+    CalculationSheetRowDebitFormSet = inlineformset_factory(parent_model=CalculationSheet, model=CalculationSheetRow, 
+        form=CalculationSheetRowDebitForm, extra=1)    
+    CalculationSheetRowCreditFormSet = inlineformset_factory(parent_model=CalculationSheet, model=CalculationSheetRow, 
+        form=CalculationSheetRowCreditForm, extra=1)
+    print(request.method)
     if request.method == 'POST':        
         calc_sheet_form = CalculationSheetForm(request.POST)
-        row_formset = CalculationSheetRowFormSet(request.POST)
+        #debit_row_formset = CalculationSheetRowDebitFormSet(request.POST)
+        #credit_row_formset = CalculationSheetRowCreditFormSet(request.POST)
         if calc_sheet_form.is_valid():
             calc_sheet_instance = calc_sheet_form.save(commit=False)
             calc_sheet_instance.author = request.user
-            row_formset = CalculationSheetRowFormSet(request.POST, instance=calc_sheet_instance)
-            if row_formset.is_valid():
-                row_formset_instance = row_formset.save(commit=False)
-                for row_form_instance in row_formset_instance:
-                    row_form_instance.author = request.user                
+            debit_row_formset = CalculationSheetRowDebitFormSet(request.POST, instance=calc_sheet_instance, prefix='debit')
+            credit_row_formset = CalculationSheetRowCreditFormSet(request.POST, instance=calc_sheet_instance, prefix='credit')
+
+            if debit_row_formset.is_valid() and credit_row_formset.is_valid(): 
                 calc_sheet_instance.save()
-                row_formset_instance.save()
+                              
+                debit_row_formset_instance = debit_row_formset.save(commit=False)              
+                for debit_row_form_instance in debit_row_formset_instance:
+                    debit_row_form_instance.author = request.user
+                    debit_row_form_instance.save()            
+            
+                credit_row_formset_instance = credit_row_formset.save(commit=False)
+                for credit_row_form_instance in credit_row_formset_instance:
+                    credit_row_form_instance.author = request.user
+                    credit_row_form_instance.save()                               
+                            
                 return redirect('calculation_sheet:home')
     else:
-        row_formset = CalculationSheetRowFormSet()
+        debit_row_formset = CalculationSheetRowDebitFormSet(prefix='debit')
+        credit_row_formset = CalculationSheetRowCreditFormSet(prefix='credit')
         calc_sheet_form = CalculationSheetForm()   
+        clients_data = []
         with connections['sol_cargo'].cursor() as cursor:
             sql = '''
                     select job_num from sol_cargo.airflow_swift_rus_profit 
@@ -47,8 +61,26 @@ def create_calculation_sheet(request):
                 '''
             cursor.execute(sql)
             rows = cursor.fetchall()
-        data = [row[0] for row in rows]  
-        return render(request, 'calculation_sheet/create_calculation_sheet.html', {'calc_sheet_form': calc_sheet_form, 'row_formset': row_formset, 'data': json.dumps(data) })
+            orders_data = [row[0] for row in rows]  
+            sql = ''' select customer_name, ifnull(tax_registration_number, '') from airflow_customer_info order by customer_name; '''
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for customer, inn in rows:
+                clients_data.append({'customer': customer, 'inn': inn})
+            
+            sql = ''' select service_acticle from airflow_service_acticle; '''
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            article_services_data = [row[0] for row in rows]
+        context = {
+            'calc_sheet_form': calc_sheet_form,
+            'debit_row_formset': debit_row_formset,
+            'credit_row_formset': credit_row_formset,
+            'orders_data': json.dumps(orders_data),
+            'clients_data': json.dumps(clients_data),
+            'article_services_data': json.dumps(article_services_data),
+        }
+        return render(request, 'calculation_sheet/create_calculation_sheet.html', context)
     
 def fetch_data_for_order(request):
     job_num = request.POST.get('job_num', None)

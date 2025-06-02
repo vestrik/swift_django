@@ -49,14 +49,15 @@ class CalculationSheetRow(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     calculation_sheet = models.ForeignKey(CalculationSheet, on_delete=models.DO_NOTHING, null=True)
     calc_row_type = models.CharField(max_length=100, blank=False, choices=CALC_ROW_TYPE_CHOICES)
-    calc_row_contragent = models.CharField(max_length=500)
-    calc_row_service_name = models.CharField(max_length=200)
+    calc_row_contragent = models.CharField(max_length=500, blank=False)
+    calc_row_service_name = models.CharField(max_length=200, blank=False)
     calc_row_currency = models.CharField(max_length=3, blank=False, choices=CURRENCY_CHOICES)
-    calc_row_count = models.PositiveIntegerField()
-    calc_row_single_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    calc_row_count = models.PositiveIntegerField(blank=False)
+    calc_row_single_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
+    calc_row_exchange_rate = models.DecimalField(max_digits=10, decimal_places=2, default=1, blank=False)
     calc_row_has_nds = models.CharField(max_length=1, choices=HAS_NDS_CHOICES, blank=False)
-    calc_row_ttl_nds_price = models.DecimalField(max_digits=10, decimal_places=2)
-    calc_row_ttl_price_without_nds = models.DecimalField(max_digits=10, decimal_places=2)
+    calc_row_ttl_nds_price = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
+    calc_row_ttl_price_without_nds = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
     
     def __str__(self):
         return f'{self.calculation_sheet} {CalculationSheet.objects.get(id=self.calculation_sheet_id).calc_sheet_no} {self.calc_row_type} {self.calc_row_contragent}'

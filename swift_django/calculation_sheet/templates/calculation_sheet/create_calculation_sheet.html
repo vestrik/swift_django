@@ -6,23 +6,119 @@
 <div class="create-calculation-sheet">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="order-data card">
-            {{ calc_sheet_form.as_ul }}
-            Направление: <input type="text" id="order-data_department" disabled>
-            КТК: <input type="text" id="order-data_ktk" disabled>
-            Клиент: <input type="text" id="order-data_client" disabled>
-            Станция, от: <input type="text" id="order-data_station_from" disabled>
-            Станция, до: <input type="text" id="order-data_station_to" disabled>
-        </div>
-        {{ row_formset.management_form }}
-
-        <div id="formset">
-            {% for row_form in row_formset %}
-                <div class="form-row card">
-                    {{row_form.as_table}}
+        <div class="card">
+            <p class="calculation-sheet-card-name">Заявка</p>
+            <div class="order-data">
+                <div class="order-data_user-input">
+                    <p>Выберите заявку из списка:</p>
+                    {{ calc_sheet_form.order_no }}
+                    <p>Укажите номер расчетного листа:</p>
+                    {{ calc_sheet_form.calc_sheet_no }}
                 </div>
-            {% endfor %}
-        </div>       
+                <div class="order-data_fetched">
+                    <div class="div_horizontal">
+                        <p>Данные из СОЛа автоматически загрузятся после выбора заявки</p>
+                    </div>
+                    <div class="div_horizontal">
+                        <p>Направление:</p><input type="text" id="order-data_department" disabled>
+                        <p>Станция, от:</p><input type="text" id="order-data_station_from" disabled>
+                        <p>Станция, до:</p><input type="text" id="order-data_station_to" disabled>
+                    </div>
+                    <div class="div_horizontal">
+                        <p>КТК:</p><input type="text" id="order-data_ktk" disabled>
+                        <p>Клиент:</p><input type="text" id="order-data_client" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <p class="calculation-sheet-card-name">Доход</p>
+            {{ debit_row_formset.management_form }}
+                <div class="form-row">
+                    <table class="debit_table">
+                        <thead>
+                            <tr class="calc-row">
+                                <th>Клиент/Поставщик</th>
+                                <th>Статья услуг</th>
+                                <th>Валюта</th>
+                                <th>Кол-во</th>
+                                <th>Цена за ед. (в валюте)</th>
+                                <th>Курс</th>
+                                <th>НДС</th>
+                                <th>Сумма НДС (в валюте)</th>
+                                <th>Ставка без НДС  (в валюте)</th>
+                                <th>Сумма, руб.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for debit_row_form in debit_row_formset %}
+                            <tr class="calc-row">
+                                <td class="calc_row_type_hidden">{{debit_row_form.calc_row_type}}</td>
+                                <td>{{debit_row_form.calc_row_contragent}}</td>
+                                <td>{{debit_row_form.calc_row_service_name}}</td>
+                                <td>{{debit_row_form.calc_row_currency}}</td>
+                                <td>{{debit_row_form.calc_row_count}}</td>
+                                <td>{{debit_row_form.calc_row_single_amount}}</td>
+                                <td>{{debit_row_form.calc_row_exchange_rate }}</td>
+                                <td>{{debit_row_form.calc_row_has_nds}}</td>
+                                <td>{{debit_row_form.calc_row_ttl_nds_price}}</td>
+                                <td>{{debit_row_form.calc_row_ttl_price_without_nds}}</td>
+                                <td><input type="number" name="debit-0-calc_row_ttl" id="id_debit-0-calc_row_ttl" class="autocalc" disabled></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="flex-div">
+                        <input class="base_button" type="button" value=" + " id="debit row_form_add_more">
+                        <input class="base_button" type="button" value=" - " id="debit row_form_remove">
+                    </div>
+                </div>            
+        </div>  
+                
+        <div class="card">
+            <p class="calculation-sheet-card-name">Расход</p>
+            {{ credit_row_formset.management_form }}
+                <div class="form-row" id="credit-form">
+                    <table class="credit_table">
+                        <thead>
+                            <tr>
+                                <th>Клиент/Поставщик</th>
+                                <th>Статья услуг</th>
+                                <th>Валюта</th>
+                                <th>Кол-во</th>
+                                <th>Цена за ед. (в валюте)</th>
+                                <th>Курс</th>
+                                <th>НДС</th>
+                                <th>Сумма НДС (в валюте)</th>
+                                <th>Ставка без НДС  (в валюте)</th>
+                                <th>Сумма, руб.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for credit_row_form in credit_row_formset %}
+                            <tr class="calc-row">                                
+                                <td class="calc_row_type_hidden">{{credit_row_form.calc_row_type}}</td>
+                                <td>{{credit_row_form.calc_row_contragent}}</td>
+                                <td class="credit-dropdown-service">{{credit_row_form.calc_row_service_name}}</td>
+                                <td>{{credit_row_form.calc_row_currency}}</td>
+                                <td>{{credit_row_form.calc_row_count}}</td>
+                                <td>{{credit_row_form.calc_row_single_amount}}</td>
+                                <td>{{credit_row_form.calc_row_exchange_rate }}</td>
+                                <td>{{credit_row_form.calc_row_has_nds}}</td>
+                                <td>{{credit_row_form.calc_row_ttl_nds_price}}</td>
+                                <td>{{credit_row_form.calc_row_ttl_price_without_nds}}</td>
+                                <td><input type="number" name="credit-0-calc_row_ttl" id="id_credit-0-calc_row_ttl" class="autocalc" disabled></td>
+                            </tr>
+                        {% endfor %}                
+                        </tbody>
+                    </table>
+                    <div class="flex-div">
+                        <input class="base_button" type="button" value=" + " id="credit row_form_add_more">
+                        <input class="base_button" type="button" value=" - " id="credit row_form_remove">
+                    </div>
+                </div>
+            
+        </div>    
         <button class="base_button" type="submit">Создать</button>
         
     </form>
@@ -34,28 +130,170 @@
 
 
 <script>
-$( function() {
-    d = {{ data|safe }}
-    $( "#id_order_no" ).autocomplete({
-        source: d 
-    });
-} );
-</script>
+    
+    function calculateCreditRow(row) {
+        var count = parseFloat(row.find('input[id$="calc_row_count"]').val()) || 0;
+        var price = parseFloat(row.find('input[id$="calc_row_single_amount"]').val()) || 0;
+        var exchange_rate = parseFloat(row.find('input[id$="calc_row_exchange_rate"]').val()) || 0; 
+        var nds = parseFloat(row.find('input[id$="calc_row_ttl_nds_price"]').val()) || 0; 
+        var without_nds = parseFloat(row.find('input[id$="calc_row_ttl_price_without_nds"]').val()) || 0; 
+        var result = (nds + without_nds) * exchange_rate || 0;
+        row.find('input.autocalc').val(result.toFixed(2));
+    }
 
-<script>
-    $(document).ready(function () {
+    // Вынесли логику автокомплита в функцию
+    function initClientAutocomplete($input) {
+        $input.autocomplete({
+            source: function(request, response) {
+                var term = request.term.toLowerCase();
+                var matches = [];
+                
+                // Ищем совпадения в ClientData
+                for (var i = 0; i < ClientData.length; i++) {
+                    var item = ClientData[i];
+                    var customer = item.customer || "";
+                    var inn = item.inn || "";
+                    
+                    // Проверяем совпадение в полях customer или inn
+                    if (customer.toLowerCase().includes(term) || 
+                        inn.toLowerCase().includes(term)) {
+                        matches.push({
+                            label: customer + (inn ? " (" + inn + ")" : ""),
+                            value: customer
+                        });
+                        
+                        // Ограничиваем результаты 10 элементами
+                        if (matches.length >= 20) break;
+                    }
+                }
+                response(matches);
+            },
+            minLength: 0,
+
+            select: function(event, ui) {
+                $(this).val(ui.item.value);
+                return false;
+            }
+        }).focus(function() {
+            $(this).autocomplete("search", $(this).val());
+        });
+    }
+
+    // Вынесли логику автокомплита в функцию
+    function setAutocomplete($input, data) {
+    $input
+        .autocomplete({
+        source: function(request, response) {
+            var results = $.ui.autocomplete.filter(data, request.term);
+            response(results.slice(0, 10));
+        },
+        minLength: 0
+        })
+        .focus(function() {
+        $(this).autocomplete('search', $(this).val());
+        });
+    }
+
+    // Получаем массив из Django
+    var ClientData = {{ clients_data|safe }};
+    var articleServicesData = {{ article_services_data|safe }};
+    var OrdersData = {{ orders_data|safe }};
+  
+
+    $(document).ready(function() {
+    
+        $('tr.calc-row').each(function() {
+            calculateCreditRow($(this));
+        });
+
+        // При вводе данных в эти инпуты выполняем пересчет
+        $('body').on('input', 'input[id$="calc_row_exchange_rate"], input[id$="calc_row_ttl_nds_price"], input[id$="calc_row_ttl_price_without_nds"]', function() {
+            calculateCreditRow($(this).closest('tr.calc-row'));
+        });
+
+        // Инициализируем на уже имеющихся полях
+        setAutocomplete($("input[id$='calc_row_service_name']"), articleServicesData);
+        setAutocomplete($("input[id='id_order_no']"), OrdersData);
+        initClientAutocomplete($("input[id$='calc_row_contragent']"));
+
+        // Делаем элементы обязательными для заполнения
+        $("div[class='form-row']").find('input').prop('required',true);
+        $("div[class='form-row']").find('select').prop('required',true);
+
+        // Добавление строк
+        $('input[id$="row_form_add_more"]').click(function() {
+        var type = this.id.split(' ')[0];
+        if (type == 'credit') {
+            var calc_row_type_value = 'Расход';
+        }
+        if (type == 'debit') {
+            var calc_row_type_value = 'Доход';
+        }
+
+        // Клонируем БЕЗ событий/данных (чтобы не дублировать)
+        var last_row = $("table[class=" + type + "_table]").find('tr').last();
+
+        var newRow = last_row.clone(false);
+
+        // Перенумеровываем name и id у input’ов
+        var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
+        newRow.find(':input').each(function() {
+            var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
+            var id   = 'id_' + name;
+            $(this).attr({ name: name, id: id }).val('').removeAttr('checked');
+        });
+        newRow.find('label').each(function() {
+            var newFor = $(this).attr('for').replace('-' + (total-1) + '-', '-' + total + '-');
+            $(this).attr('for', newFor);
+        });
+        $('#id_' + type + '-TOTAL_FORMS').val(total + 1);
+
+        // Вставляем строку
+        last_row.after(newRow); 
+        
+        newRow.find("input[id$='calc_row_type']").val(calc_row_type_value)
+        newRow.find("input[id$='calc_row_exchange_rate']").val(1)
+
+        // Инициализируем автокомплит на новом input
+        setAutocomplete(newRow.find("input[id$='calc_row_service_name']"), articleServicesData);
+        initClientAutocomplete($("input[id$='calc_row_contragent']"));
+        calculateCreditRow(newRow);        
+
+        });
+
+        // Удаление строк
+        $('input[id$="row_form_remove"]').click(function() {
+            var type = this.id.split(' ')[0];
+            var rows = $("table[class=" + type + "_table]").find('tbody').find('tr');
+            // Не удаляем если осталась 1 строка
+            if (rows.length > 1) {
+                rows.last().remove();
+            }
+            // Уменьшаем кол-во форм на 1
+            var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
+            $('#id_' + type + '-TOTAL_FORMS').val(total - 1);
+        });
+
+    
+        // когда пропадает фокус с элемента id_order_no
         $('#id_order_no').focusout(function () {
+            // Получаем CSRF-токен
             var csrftoken = $("[name=csrfmiddlewaretoken]").val();
-            var order_no = $('#id_order_no').val();
-            if (order_no.length == 16 && order_no.startsWith('MOS')) {
+            // Получаем значение элемента id_order_no
+            var order_no = $('#id_order_no').val();            
+            // Если значение из списка
+            if (OrdersData.includes(order_no)){
+            //if (order_no.length == 16 && order_no.startsWith('MOS')) {
+                // Отправляем запрос
                 $.ajax({
                     data: {'job_num': $('#id_order_no').val()},
                     dataType: "json",
                     type: 'POST',
                     url: "{% url 'calculation_sheet:fetch_data_for_order' %}",
                     headers: {
-                        'X-CSRFToken': csrftoken // Установка CSRF-токена в заголовок
+                        'X-CSRFToken': csrftoken 
                     },
+                    // Если запрос успешный - рендерим значения из ответа в элементы
                     success: function(data) {                    
                         $("#order-data_department").val(data.department);
                         $("#order-data_ktk").val(data.box);
