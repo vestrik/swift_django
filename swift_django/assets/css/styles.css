@@ -38,6 +38,7 @@ a:hover {color: var(--accent-color);}
 .base_button:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+  color: white;
 }
 .card {
   background: white;

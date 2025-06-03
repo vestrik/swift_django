@@ -14,11 +14,8 @@
                 <nav class="navbar">
                     <ul>
                         {% if user.get_username %}
-                        <li>
-                            <div>                                
-                                <form action="{% url 'calculation_sheet:home' %}">
-                                    <button class="base_button">Расчетные листы</button>
-                                </form>
+                        <li><div>
+                                <a href="{% url 'calculation_sheet:home' %}" class="base_button">Расчетные листы</a>
                             </div>
                         </li>
                         <li class="li_right_side">
@@ -36,9 +33,7 @@
                         </li>
                         {% else %}
                         <li>
-                            <form action="{% url 'accounts:login'%}">
-                            <button  class="base_button">Войти</button>
-                            </form>
+                            <a href="{% url 'accounts:login' %}" class="base_button">Войти</a>
                         </li>   
                         {% endif %}                     
                     </ul>
