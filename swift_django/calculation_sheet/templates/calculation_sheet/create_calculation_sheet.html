@@ -20,13 +20,13 @@
                         <p>Данные из СОЛа автоматически загрузятся после выбора заявки</p>
                     </div>
                     <div class="div_horizontal">
-                        <p>Направление:</p><input type="text" id="order-data_department" disabled>
-                        <p>Станция, от:</p><input type="text" id="order-data_station_from" disabled>
-                        <p>Станция, до:</p><input type="text" id="order-data_station_to" disabled>
+                        <p>Направление:</p><input class="calc-sheet-input" type="text" id="order-data_department" disabled>
+                        <p>Станция, от:</p><input class="calc-sheet-input" type="text" id="order-data_station_from" disabled>
+                        <p>Станция, до:</p><input class="calc-sheet-input" type="text" id="order-data_station_to" disabled>
                     </div>
                     <div class="div_horizontal">
-                        <p>КТК:</p><input type="text" id="order-data_ktk" disabled>
-                        <p>Клиент:</p><input type="text" id="order-data_client" disabled>
+                        <p>КТК:</p><input class="calc-sheet-input" type="text" id="order-data_ktk" disabled>
+                        <p>Клиент:</p><input class="calc-sheet-input" type="text" id="order-data_client" disabled>
                     </div>
                 </div>
             </div>
@@ -35,19 +35,19 @@
             <p class="calculation-sheet-card-name">Итог</p>
             <div class="div_horizontal">
                 <p>Доход</p>
-                <input type="text" id="debit-total-sum_1" disabled>
+                <input class="calc-sheet-input" type="text" id="debit-total-sum_1" disabled>
                 <p>Расход</p>
-                <input type="text" id="credit-total-sum_1" disabled>
+                <input class="calc-sheet-input" type="text" id="credit-total-sum_1" disabled>
                 <p>Маржа</p>
-                <input type="text" id="margin-total-sum" disabled>
+                <input class="calc-sheet-input" type="text" id="margin-total-sum" disabled>
                 <p>% маржи</p>
-                <input type="text" id="margin-total-percent" disabled>
+                <input class="calc-sheet-input" type="text" id="margin-total-percent" disabled>
             </div>
         </div>
         <div class="card">
             <p class="calculation-sheet-card-name">Доход</p>
             {{ debit_row_formset.management_form }}
-                <div class="form-row">
+                <div class="calc-sheet-table">
                     <table class="debit_table">
                         <thead>
                             <tr class="calc-row">
@@ -88,7 +88,7 @@
                         </div>            
                         <div class="calculation-sheet-total">
                             <div class="calculation-sheet-total-label"><p>Итого:</p></div>
-                            <div class="calculation-sheet-total-value"><input type="number" id="debit-total-sum_2"></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="debit-total-sum_2" disabled></div>
                             <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
         <div class="card">
             <p class="calculation-sheet-card-name">Расход</p>
             {{ credit_row_formset.management_form }}
-                <div class="form-row" id="credit-form">
+                <div class="calc-sheet-table" id="credit-form">
                     <table class="credit_table">
                         <thead>
                             <tr>
@@ -139,7 +139,7 @@
                         </div>            
                         <div class="calculation-sheet-total">
                             <div class="calculation-sheet-total-label"><p>Итого:</p></div>
-                            <div class="calculation-sheet-total-value"><input type="number" id="credit-total-sum_2"></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="credit-total-sum_2" disabled></div>
                             <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
                         </div>
                     </div>
@@ -271,10 +271,10 @@
         initClientAutocomplete($("input[id$='calc_row_contragent']"));
 
         // Делаем элементы обязательными для заполнения
-        $("div[class='form-row']").find('table').find('input').prop('required', true);
+        $("div[class='calc-sheet-table']").find('table').find('input').prop('required', true);
         // Кроме этих
-        $("div[class='form-row']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
-        $("div[class='form-row']").find('select').prop('required',true);
+        $("div[class='calc-sheet-table']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
+        $("div[class='calc-sheet-table']").find('select').prop('required',true);
 
         // Добавление строк
         $('input[id$="row_form_add_more"]').click(function() {
