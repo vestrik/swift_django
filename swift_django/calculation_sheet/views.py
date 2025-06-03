@@ -82,9 +82,8 @@ def create_calculation_sheet(request):
         }
         return render(request, 'calculation_sheet/create_calculation_sheet.html', context)
     
-def fetch_data_for_order(request):
-    job_num = request.POST.get('job_num', None)
-    
+def fetch_order_data_from_db(job_num):
+    job_num_data = {}
     if job_num is not None:
         sql = f'''
             select 
@@ -96,19 +95,49 @@ def fetch_data_for_order(request):
         '''
         with connections['sol_cargo'].cursor() as cursor:
             cursor.execute(sql)
-            job_num_data = cursor.fetchone()
-        
-        return_data = {"department": job_num_data[0],
-                            "box": job_num_data[1],
-                            "client": job_num_data[2],
-                            "station_from": job_num_data[3],
-                            "station_to": job_num_data[4]}
-    else: 
-        return_data = {}
+            result = cursor.fetchone()
+        job_num_data = {"department": result[0],
+                    "box": result[1],
+                    "client": result[2],
+                    "station_from": result[3],
+                    "station_to": result[4]}
+    return job_num_data
+
+    
+def fetch_data_for_order(request):
+    job_num = request.POST.get('job_num', None)
+    return_data = fetch_order_data_from_db(job_num)
     return JsonResponse(return_data)
 
 def view_info(request, id):
-    calc_sheets = CalculationSheetRow.objects.filter(calculation_sheet_id=id)    
+    calc_sheet_info = CalculationSheet.objects.get(id=id)
+    calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')    
+    calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')    
+    debit_total_sum, credit_total_sum = 0, 0
     
-    return render(request, 'calculation_sheet/calculation_sheet_info.html', {'calc_sheets': calc_sheets })
+    for calc_sheet_debit_row in calc_sheet_debit_rows:
+        calc_sheet_debit_row.total = round((calc_sheet_debit_row.calc_row_ttl_price_without_nds + calc_sheet_debit_row.calc_row_ttl_nds_price) * calc_sheet_debit_row.calc_row_exchange_rate, 2)
+        debit_total_sum += calc_sheet_debit_row.total   
+             
+    for calc_sheet_credit_row in calc_sheet_credit_rows:
+        calc_sheet_credit_row.total = round((calc_sheet_credit_row.calc_row_ttl_price_without_nds + calc_sheet_credit_row.calc_row_ttl_nds_price) * calc_sheet_credit_row.calc_row_exchange_rate, 2)
+        credit_total_sum += calc_sheet_credit_row.total
+        
+    job_num_data = fetch_order_data_from_db(calc_sheet_info.order_no)
+    context = {
+        'calc_sheet_info': calc_sheet_info,
+        'order_department': job_num_data['department'],
+        'order_box': job_num_data['box'],
+        'order_client': job_num_data['client'],
+        'order_station_from': job_num_data['station_from'],
+        'order_station_to': job_num_data['station_to'],
+        'debit_total_sum': round(debit_total_sum, 2),
+        'credit_total_sum': round(credit_total_sum, 2),
+        'margin_total_sum': round(debit_total_sum - credit_total_sum, 2),
+        'margin_prcnt': f'{round((debit_total_sum - credit_total_sum) / debit_total_sum * 100, 2)} %',
+        'calc_sheet_debit_rows': calc_sheet_debit_rows,
+        'calc_sheet_credit_rows': calc_sheet_credit_rows
+    }
+    
+    return render(request, 'calculation_sheet/calculation_sheet_info.html', context)
     

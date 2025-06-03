@@ -77,19 +77,25 @@ input::-webkit-inner-spin-button {
   margin: 8px 16px;
 }
 
-/* Карточка с данными по заявке */
-.order-data {display: flex;}
-.order-data p {margin: 0px;padding: 3px;}
-
-.order-data .order-data_user-input input {
+.calc-sheet-input, input[id='id_order_no'], input[id='id_calc_sheet_no']  {
   width: 180px;
   height: 15px;
   padding: 5px;
   margin: 5px;
-  border-width:1.6px;
+  border-width: 0.6px;
   border-style: inset;
   color: rgb(84, 84, 84);
   border-color: rgba(118, 118, 118, 0.3);
+}
+
+
+/* -------------- создание -------------- */
+
+/* Карточка с данными по заявке */
+.order-data {display: flex;}
+.order-data p {margin: 0px;padding: 3px;}
+
+input[id='id_order_no'], input[id='id_calc_sheet_no'] {
   background-color: rgba(255, 161, 161, 0.3);
 }
 .order-data_user-input {padding-left: 16px;width: 15%;min-width: 220px;}
@@ -98,11 +104,11 @@ input::-webkit-inner-spin-button {
 
 /* Карточка с доходами/расходами */ 
 .div_horizontal {display: flex;padding: 0px;}
-.form-row {margin: 0px 16px;}
+.calc-sheet-table {margin: 0px 16px;}
 .calc_row_type_hidden {display: none;}
-.form-row table {width: 100%;}
-.form-row td {padding: 0px 5px;}
-.form-row input, select {
+.calc-sheet-table table {width: 100%;}
+.calc-sheet-table td {padding: 0px 5px;}
+.calc-sheet-table input, select {
   height: 100%;
   width: 100%;
   min-width: 55px;
@@ -111,8 +117,8 @@ input::-webkit-inner-spin-button {
   color: rgb(84, 84, 84);
   border-color: rgba(118, 118, 118, 0.3);
 }
-.form-row input[id$="calc_row_contragent"], input[id$="calc_row_service_name"] {min-width: 180px;}
-.form-row input[id$="calc_row_count"], input[id$="calc_row_single_amount"], input[id$="calc_row_exchange_rate"]  {min-width: 100px;}
+.calc-sheet-table input[id$="calc_row_contragent"], input[id$="calc_row_service_name"] {min-width: 180px;}
+.calc-sheet-table input[id$="calc_row_count"], input[id$="calc_row_single_amount"], input[id$="calc_row_exchange_rate"]  {min-width: 100px;}
 input[id$='row_form_add_more'], input[id$='row_form_remove'] {
   margin: 5px 5px 0px 0px;
   padding: 6px;
@@ -128,20 +134,22 @@ input[id$='row_form_add_more'], input[id$='row_form_remove'] {
 .calculation-sheet-total p {margin: 3px;}
 input[id='debit-total-sum'] {min-width: 100px;width: 120px;}
 .calculation-sheet-total-rub-label {margin-left: 3px;}
-.calculation-list-total-info input {
-  width: 120px;
-  height: 15px;
-  padding: 5px 5px 5px 0px;
-  margin: 5px 20px 5px 0px;
-  border-width:1.6px;
-  border-style: inset;  
-  border-color: rgba(118, 118, 118, 0.3);
-  color: rgb(84, 84, 84);
+.calculation-list-total-info p {padding: 3px; margin: 3px;}
+
+/* -------------- -------- -------------- */
+
+/* -------------- просмотр -------------- */
+
+.debit_table, .credit_table {
+  width: 10%;
 }
 
-.calculation-list-total-info p {
-  padding: 3px; margin: 3px;
-}
+
+
+/* -------------- -------- -------------- */
+
+/* -------------- изменение -------------- */
+/* -------------- --------- -------------- */
 
 /* ------------------------------------------------------ */
 
