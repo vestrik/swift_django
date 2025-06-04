@@ -244,7 +244,7 @@
     // Получаем массив из Django
     var ClientData = {{ clients_data|safe }};
     var articleServicesData = {{ article_services_data|safe }};
-    var OrdersData = {{ orders_data|safe }};
+    var Orders = {{ orders|safe }};
   
 
     $(document).ready(function() {
@@ -267,7 +267,7 @@
 
         // Инициализируем на уже имеющихся полях
         setAutocomplete($("input[id$='calc_row_service_name']"), articleServicesData);
-        setAutocomplete($("input[id='id_order_no']"), OrdersData);
+        setAutocomplete($("input[id='id_order_no']"), Orders);
         initClientAutocomplete($("input[id$='calc_row_contragent']"));
 
         // Делаем элементы обязательными для заполнения
@@ -342,7 +342,7 @@
             // Получаем значение элемента id_order_no
             var order_no = $('#id_order_no').val();            
             // Если значение из списка
-            if (OrdersData.includes(order_no)){
+            if (Orders.includes(order_no)){
             //if (order_no.length == 16 && order_no.startsWith('MOS')) {
                 // Отправляем запрос
                 $.ajax({
