@@ -241,41 +241,8 @@
         });
     }
 
-    // Получаем массив из Django
-    var ClientData = {{ clients_data|safe }};
-    var articleServicesData = {{ article_services_data|safe }};
-    var Orders = {{ orders|safe }};  
-
-    $(document).ready(function() {
-
-        $('tr.calc-row').each(function() {
-            calculateRowSum($(this));
-        });
-
-        calculateTotalTable($('.debit_table'));
-        calculateTotalTable($('.credit_table'));
-
-        // При вводе данных в эти инпуты выполняем пересчет
-        $('body').on('input', 'input[id$="calc_row_exchange_rate"], input[id$="calc_row_ttl_nds_price"], input[id$="calc_row_ttl_price_without_nds"]', function() {
-            var row = $(this).closest('tr.calc-row');
-            calculateRowSum(row);
-            calculateTotalTable(row.closest('table')); // Пересчет таблицы после изменения строки
-        });
-
-        // Инициализируем на уже имеющихся полях
-        setAutocomplete($("input[id$='calc_row_service_name']"), articleServicesData);
-        setAutocomplete($("input[id='id_order_no']"), Orders);
-        initClientAutocomplete($("input[id$='calc_row_contragent']"));
-
-        // Делаем элементы обязательными для заполнения
-        $("div[class='calc-sheet-table']").find('table').find('input').prop('required', true);
-        $("div[class='calc-sheet-table']").find('select').prop('required',true);
-        // Кроме этих
-        $("div[class='calc-sheet-table']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
-        
-
-        // Добавление строк
-        $('input[id$="row_form_add_more"]').click(function() {
+    // Добавление строк
+    $('input[id$="row_form_add_more"]').click(function() {
         var type = this.id.split(' ')[0];
         if (type == 'credit') {
             var calc_row_type_value = 'Расход';
@@ -314,55 +281,88 @@
         calculateRowSum(newRow);      
         calculateTotalTable(newRow.closest('table')); // Пересчет после добавления  
 
+    });
+
+    // Удаление строк
+    $('input[id$="row_form_remove"]').click(function() {
+        var type = this.id.split(' ')[0];
+        var rows = $("table[class=" + type + "_table]").find('tbody').find('tr');
+        // Не удаляем если осталась 1 строка
+        if (rows.length > 1) {
+            rows.last().remove();
+        
+            // Уменьшаем кол-во форм на 1
+            var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
+            $('#id_' + type + '-TOTAL_FORMS').val(total - 1);      
+        }      
+        
+        var table = $("table." + type + "_table");
+        calculateTotalTable(table); // Пересчет после удаления
+    });
+    
+    // когда пропадает фокус с элемента id_order_no
+    $('#id_order_no').focusout(function () {
+        // Получаем CSRF-токен
+        var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+        // Получаем значение элемента id_order_no
+        var order_no = $('#id_order_no').val();            
+        // Если значение из списка
+        if (Orders.includes(order_no)){
+        //if (order_no.length == 16 && order_no.startsWith('MOS')) {
+            // Отправляем запрос
+            $.ajax({
+                data: {'job_num': $('#id_order_no').val()},
+                dataType: "json",
+                type: 'POST',
+                url: "{% url 'calculation_sheet:fetch_data_for_order' %}",
+                headers: {
+                    'X-CSRFToken': csrftoken 
+                },
+                // Если запрос успешный - рендерим значения из ответа в элементы
+                success: function(data) {                    
+                    $("#order-data_department").val(data.department);
+                    $("#order-data_ktk").val(data.box);
+                    $("#order-data_client").val(data.client);
+                    $("#order-data_station_from").val(data.station_from);
+                    $("#order-data_station_to").val(data.station_to);
+                    
+                }
+            })
+        }
+    })
+
+    // Получаем массив из Django
+    var ClientData = {{ clients_data|safe }};
+    var articleServicesData = {{ article_services_data|safe }};
+    var Orders = {{ orders|safe }};  
+
+    $(document).ready(function() {
+
+        $('tr.calc-row').each(function() {
+            calculateRowSum($(this));
         });
 
-        // Удаление строк
-        $('input[id$="row_form_remove"]').click(function() {
-            var type = this.id.split(' ')[0];
-            var rows = $("table[class=" + type + "_table]").find('tbody').find('tr');
-            // Не удаляем если осталась 1 строка
-            if (rows.length > 1) {
-                rows.last().remove();
-            
-                // Уменьшаем кол-во форм на 1
-                var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
-                $('#id_' + type + '-TOTAL_FORMS').val(total - 1);      
-            }      
-            
-            var table = $("table." + type + "_table");
-            calculateTotalTable(table); // Пересчет после удаления
+        calculateTotalTable($('.debit_table'));
+        calculateTotalTable($('.credit_table'));
+
+        // При вводе данных в эти инпуты выполняем пересчет
+        $('body').on('input', 'input[id$="calc_row_exchange_rate"], input[id$="calc_row_ttl_nds_price"], input[id$="calc_row_ttl_price_without_nds"]', function() {
+            var row = $(this).closest('tr.calc-row');
+            calculateRowSum(row);
+            calculateTotalTable(row.closest('table')); // Пересчет таблицы после изменения строки
         });
-    
-        // когда пропадает фокус с элемента id_order_no
-        $('#id_order_no').focusout(function () {
-            // Получаем CSRF-токен
-            var csrftoken = $("[name=csrfmiddlewaretoken]").val();
-            // Получаем значение элемента id_order_no
-            var order_no = $('#id_order_no').val();            
-            // Если значение из списка
-            if (Orders.includes(order_no)){
-            //if (order_no.length == 16 && order_no.startsWith('MOS')) {
-                // Отправляем запрос
-                $.ajax({
-                    data: {'job_num': $('#id_order_no').val()},
-                    dataType: "json",
-                    type: 'POST',
-                    url: "{% url 'calculation_sheet:fetch_data_for_order' %}",
-                    headers: {
-                        'X-CSRFToken': csrftoken 
-                    },
-                    // Если запрос успешный - рендерим значения из ответа в элементы
-                    success: function(data) {                    
-                        $("#order-data_department").val(data.department);
-                        $("#order-data_ktk").val(data.box);
-                        $("#order-data_client").val(data.client);
-                        $("#order-data_station_from").val(data.station_from);
-                        $("#order-data_station_to").val(data.station_to);
-                        
-                    }
-                })
-            }
-        })
+
+        // Инициализируем на уже имеющихся полях
+        setAutocomplete($("input[id$='calc_row_service_name']"), articleServicesData);
+        setAutocomplete($("input[id='id_order_no']"), Orders);
+        initClientAutocomplete($("input[id$='calc_row_contragent']"));
+
+        // Делаем элементы обязательными для заполнения
+        $("div[class='calc-sheet-table']").find('table').find('input').prop('required', true);
+        $("div[class='calc-sheet-table']").find('select').prop('required',true);
+        // Кроме этих
+        $("div[class='calc-sheet-table']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
+        
     })
 </script>
 {% endblock %}
