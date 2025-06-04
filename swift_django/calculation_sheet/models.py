@@ -45,8 +45,10 @@ class CalculationSheet(models.Model):
 
     
 class CalculationSheetRow(models.Model):
-    author = models.CharField(max_length=100)
+    created_by = models.CharField(max_length=100)
     created_at = models.DateTimeField(default=timezone.now)
+    edited_by = models.CharField(max_length=100)
+    edited_at = models.DateTimeField(default=timezone.now)
     calculation_sheet = models.ForeignKey(CalculationSheet, on_delete=models.DO_NOTHING, null=True)
     calc_row_type = models.CharField(max_length=100, blank=False, choices=CALC_ROW_TYPE_CHOICES)
     calc_row_contragent = models.CharField(max_length=500, blank=False)
