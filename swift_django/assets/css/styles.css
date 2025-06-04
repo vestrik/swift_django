@@ -122,9 +122,9 @@ input[id='id_order_no'], input[id='id_calc_sheet_no'] {
 .calc-sheet-table input[id$="calc_row_count"], input[id$="calc_row_single_amount"], input[id$="calc_row_exchange_rate"]  {min-width: 100px;}
 input[id$='row_form_add_more'], input[id$='row_form_remove'] {
   margin: 5px 5px 0px 0px;
-  padding: 6px;
+  padding: 6px 12px;
   min-width: 20px;
-  width: 50px;
+  width: auto;
   font-weight: 400;
   color: #F9F9F9;
   border: #F9F9F9;
@@ -145,11 +145,12 @@ input[id='debit-total-sum'] {min-width: 100px;width: 120px;}
   width: 10%;
 }
 
-
-
 /* -------------- -------- -------------- */
 
 /* -------------- изменение -------------- */
+.delete-row-th {
+  color: red;
+}
 /* -------------- --------- -------------- */
 
 /* ------------------------------------------------------ */

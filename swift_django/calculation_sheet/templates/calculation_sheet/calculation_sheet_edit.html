@@ -1,0 +1,346 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+
+
+<div class="create-calculation-sheet">
+    <div class="card">
+        <p class="calculation-sheet-card-name">Заявка</p>
+        <div class="order-data">
+            <div class="order-data_user-input">
+                <p>Заявка</p>
+                <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.order_no }}" disabled>                
+                <p>Номер расчетного листа</p>
+                <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.calc_sheet_no }}" disabled>
+            </div>
+            <div class="order-data_fetched">
+                <div class="div_horizontal">
+                    <p>Данные из СОЛа автоматически загрузятся после выбора заявки</p>
+                </div>
+                <div class="div_horizontal">
+                    <p>Направление:</p><input class="calc-sheet-input" type="text" value="{{order_data.department}}" disabled>
+                    <p>Станция, от:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_from}}" disabled>
+                    <p>Станция, до:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_to}}" disabled>
+                </div>
+                <div class="div_horizontal">
+                    <p>КТК:</p><input class="calc-sheet-input" type="text" value="{{order_data.box}}" disabled>
+                    <p>Клиент:</p><input class="calc-sheet-input" type="text" value="{{order_data.client}}" disabled>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card calculation-list-total-info">
+        <p class="calculation-sheet-card-name">Итог</p>
+        <div class="div_horizontal">
+            <p>Доход</p>
+            <input class="calc-sheet-input" type="text" id="debit-total-sum_1" disabled>
+            <p>Расход</p>
+            <input class="calc-sheet-input" type="text" id="credit-total-sum_1" disabled>
+            <p>Маржа</p>
+            <input class="calc-sheet-input" type="text" id="margin-total-sum" disabled>
+            <p>% маржи</p>
+            <input class="calc-sheet-input" type="text" id="margin-total-percent" disabled>
+        </div>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card">
+            <p class="calculation-sheet-card-name">Доход</p>
+            {{ debit_row_formset.management_form }}
+                <div class="calc-sheet-table">
+                    <table class="debit_table">
+                        <thead>
+                            <tr class="calc-row">
+                                <th>Клиент/Поставщик</th>
+                                <th>Статья услуг</th>
+                                <th>Валюта</th>
+                                <th>Кол-во</th>
+                                <th>Цена за ед. (в валюте)</th>
+                                <th>Курс</th>
+                                <th>НДС</th>
+                                <th>Сумма НДС (в валюте)</th>
+                                <th>Ставка без НДС  (в валюте)</th>
+                                <th>Сумма, руб.</th>
+                                <th class="delete-row-th">Удалить</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for debit_row_form in debit_row_formset %}
+                            <tr class="calc-row">
+                                {{debit_row_form.id}}
+                                <td class="calc_row_type_hidden">{{debit_row_form.calc_row_type}}</td>
+                                <td>{{debit_row_form.calc_row_contragent}}</td>
+                                <td>{{debit_row_form.calc_row_service_name}}</td>
+                                <td>{{debit_row_form.calc_row_currency}}</td>
+                                <td>{{debit_row_form.calc_row_count}}</td>
+                                <td>{{debit_row_form.calc_row_single_amount}}</td>
+                                <td>{{debit_row_form.calc_row_exchange_rate }}</td>
+                                <td>{{debit_row_form.calc_row_has_nds}}</td>
+                                <td>{{debit_row_form.calc_row_ttl_nds_price}}</td>
+                                <td>{{debit_row_form.calc_row_ttl_price_without_nds}}</td>
+                                <td><input type="number" name="debit-0-calc_row_ttl" id="id_debit-0-calc_row_ttl" class="autocalc" disabled></td>                                
+                                <td>{{debit_row_form.DELETE}}</td>                                
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>                    
+                    <div class="calculation-sheet-button-and-total">
+                        <div class="calculation-sheet-buttons">
+                            <input class="base_button" type="button" value="Добавить новую строку" id="debit row_form_add_more">
+                            <input class="base_button" type="button" value="Удалить новую строку" id="debit row_form_remove">
+                        </div>            
+                        <div class="calculation-sheet-total">
+                            <div class="calculation-sheet-total-label"><p>Итого:</p></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="debit-total-sum_2" disabled></div>
+                            <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
+                        </div>
+                    </div>
+                </div>            
+        </div>  
+                
+        <div class="card">
+            <p class="calculation-sheet-card-name">Расход</p>
+            {{ credit_row_formset.management_form }}
+                <div class="calc-sheet-table" id="credit-form">
+                    <table class="credit_table">
+                        <thead>
+                            <tr>
+                                <th>Клиент/Поставщик</th>
+                                <th>Статья услуг</th>
+                                <th>Валюта</th>
+                                <th>Кол-во</th>
+                                <th>Цена за ед. (в валюте)</th>
+                                <th>Курс</th>
+                                <th>НДС</th>
+                                <th>Сумма НДС (в валюте)</th>
+                                <th>Ставка без НДС  (в валюте)</th>
+                                <th>Сумма, руб.</th>
+                                <th class="delete-row-th">Удалить</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for credit_row_form in credit_row_formset %}
+                            <tr class="calc-row">                    
+                                {{credit_row_form.id}}            
+                                <td class="calc_row_type_hidden">{{credit_row_form.calc_row_type}}</td>
+                                <td>{{credit_row_form.calc_row_contragent}}</td>
+                                <td class="credit-dropdown-service">{{credit_row_form.calc_row_service_name}}</td>
+                                <td>{{credit_row_form.calc_row_currency}}</td>
+                                <td>{{credit_row_form.calc_row_count}}</td>
+                                <td>{{credit_row_form.calc_row_single_amount}}</td>
+                                <td>{{credit_row_form.calc_row_exchange_rate }}</td>
+                                <td>{{credit_row_form.calc_row_has_nds}}</td>
+                                <td>{{credit_row_form.calc_row_ttl_nds_price}}</td>
+                                <td>{{credit_row_form.calc_row_ttl_price_without_nds}}</td>
+                                <td><input type="number" name="credit-0-calc_row_ttl" id="id_credit-0-calc_row_ttl" class="autocalc" disabled></td>
+                                <td>{{credit_row_form.DELETE}}</td>
+                            </tr>
+                        {% endfor %}                
+                        </tbody>
+                    </table>
+                    <div class="calculation-sheet-button-and-total">
+                        <div class="calculation-sheet-buttons">
+                            <input class="base_button" type="button" value="Добавить новую строку" id="credit row_form_add_more">
+                            <input class="base_button" type="button" value="Удалить новую строку" id="credit row_form_remove">
+                        </div>            
+                        <div class="calculation-sheet-total">
+                            <div class="calculation-sheet-total-label"><p>Итого:</p></div>
+                            <div class="calculation-sheet-total-value"><input type="number" id="credit-total-sum_2" disabled></div>
+                            <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
+                        </div>
+                    </div>
+                </div>
+            
+        </div>    
+        <button class="base_button" type="submit">Сохранить</button>
+        
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+
+
+<script>
+    
+    function calculateRowSum(row) {
+        var exchange_rate = parseFloat(row.find('input[id$="calc_row_exchange_rate"]').val()) || 0; 
+        var nds = parseFloat(row.find('input[id$="calc_row_ttl_nds_price"]').val()) || 0; 
+        var without_nds = parseFloat(row.find('input[id$="calc_row_ttl_price_without_nds"]').val()) || 0; 
+        var result = (nds + without_nds) * exchange_rate || 0;
+        row.find('input.autocalc').val(result.toFixed(2));
+    }
+
+    function calculateTotalTable(table) {
+        var total_sum = 0;
+        // Суммируем все значения в столбце "Сумма, руб."
+        $(table).find('tbody tr.calc-row').each(function() {
+            var row_sum = parseFloat($(this).find('input.autocalc').val()) || 0;
+            total_sum += row_sum;
+        });
+        
+        // Определяем тип таблицы (debit/credit) и обновляем соответствующий итог
+        if ($(table).hasClass('debit_table')) {
+            $('#debit-total-sum_1').val(total_sum.toFixed(2));
+            $('#debit-total-sum_2').val(total_sum.toFixed(2));
+        } else if ($(table).hasClass('credit_table')) {
+            $('#credit-total-sum_1').val(total_sum.toFixed(2));
+            $('#credit-total-sum_2').val(total_sum.toFixed(2));
+        }
+        var margin_sum = $('#debit-total-sum_1').val() - $('#credit-total-sum_1').val() || 0;
+        var margin_prcnt = margin_sum / $('#debit-total-sum_1').val() * 100 || 0;
+        $('#margin-total-sum').val(margin_sum.toFixed(2));
+        $('#margin-total-percent').val(margin_prcnt.toFixed(2) + ' %');
+    }
+
+    // Вынесли логику автокомплита в функцию
+    function initClientAutocomplete($input) {
+        $input.autocomplete({
+            source: function(request, response) {
+                var term = request.term.toLowerCase();
+                var matches = [];
+                
+                // Ищем совпадения в ClientData
+                for (var i = 0; i < ClientData.length; i++) {
+                    var item = ClientData[i];
+                    var customer = item.customer || "";
+                    var inn = item.inn || "";
+                    
+                    // Проверяем совпадение в полях customer или inn
+                    if (customer.toLowerCase().includes(term) || 
+                        inn.toLowerCase().includes(term)) {
+                        matches.push({
+                            label: customer + (inn ? " (" + inn + ")" : ""),
+                            value: customer
+                        });
+                        
+                        // Ограничиваем результаты 10 элементами
+                        if (matches.length >= 20) break;
+                    }
+                }
+                response(matches);
+            },
+            minLength: 0,
+
+            select: function(event, ui) {
+                $(this).val(ui.item.value);
+                return false;
+            }
+        }).focus(function() {
+            $(this).autocomplete("search", $(this).val());
+        });
+    }
+
+    // Вынесли логику автокомплита в функцию
+    function setAutocomplete($input, data) {
+    $input
+        .autocomplete({
+        source: function(request, response) {
+            var results = $.ui.autocomplete.filter(data, request.term);
+            response(results.slice(0, 10));
+        },
+        minLength: 0
+        })
+        .focus(function() {
+        $(this).autocomplete('search', $(this).val());
+        });
+    }
+
+    // Добавление строк
+    $('input[id$="row_form_add_more"]').click(function() {
+        var type = this.id.split(' ')[0];
+        if (type == 'credit') {
+            var calc_row_type_value = 'Расход';
+        }
+        if (type == 'debit') {
+            var calc_row_type_value = 'Доход';
+        }
+
+        // Клонируем БЕЗ событий/данных (чтобы не дублировать)
+        var last_row = $("table[class=" + type + "_table]").find('tr').last();
+        var newRow = last_row.clone(false);
+
+        // Перенумеровываем name и id у input’ов
+        var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
+        newRow.find(':input').each(function() {
+            var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
+            var id   = 'id_' + name;
+            $(this).attr({ name: name, id: id }).val('').removeAttr('checked');
+        });
+        newRow.find('label').each(function() {
+            var newFor = $(this).attr('for').replace('-' + (total-1) + '-', '-' + total + '-');
+            $(this).attr('for', newFor);
+        });
+        $('#id_' + type + '-TOTAL_FORMS').val(total + 1);
+
+        // Вставляем строку
+        last_row.after(newRow); 
+        
+        newRow.find("input[id$='calc_row_type']").val(calc_row_type_value)
+        newRow.find("input[id$='calc_row_exchange_rate']").val(1)
+
+        // Инициализируем автокомплит на новом input
+        setAutocomplete(newRow.find("input[id$='calc_row_service_name']"), articleServicesData);
+        initClientAutocomplete($("input[id$='calc_row_contragent']"));
+        calculateRowSum(newRow);      
+        calculateTotalTable(newRow.closest('table')); // Пересчет после добавления  
+
+        // Удаляем чекбокс для удаления записи из БД
+        newRow.find('input[type=checkbox][id$="-DELETE"]').remove();
+
+    });
+
+    // Удаление строк
+    $('input[id$="row_form_remove"]').click(function() {
+        var type = this.id.split(' ')[0];
+        var rows = $("table[class=" + type + "_table]").find('tbody').find('tr');
+        
+        console.log(rows.last())
+        console.log(rows.last().find('input[type=hidden][id$="-id"]').val())
+        if (rows.last().find('input[type=hidden][id$="-id"]').val() == '') {
+            rows.last().remove()
+            // Уменьшаем кол-во форм на 1
+            var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
+            $('#id_' + type + '-TOTAL_FORMS').val(total - 1);    
+        }            
+        
+        var table = $("table." + type + "_table");
+        calculateTotalTable(table); // Пересчет после удаления
+    });
+
+    // Получаем массив из Django
+    var ClientData = {{ clients_data|safe }};
+    var articleServicesData = {{ article_services_data|safe }};  
+
+    $(document).ready(function() {        
+    
+        $('tr.calc-row').each(function() {
+            calculateRowSum($(this));
+        });
+
+        calculateTotalTable($('.debit_table'));
+        calculateTotalTable($('.credit_table'));
+
+        // При вводе данных в эти инпуты выполняем пересчет
+        $('body').on('input', 'input[id$="calc_row_exchange_rate"], input[id$="calc_row_ttl_nds_price"], input[id$="calc_row_ttl_price_without_nds"]', function() {
+            var row = $(this).closest('tr.calc-row');
+            calculateRowSum(row);
+            calculateTotalTable(row.closest('table')); // Пересчет таблицы после изменения строки
+        });
+
+        // Инициализируем на уже имеющихся полях
+        setAutocomplete($("input[id$='calc_row_service_name']"), articleServicesData);
+        initClientAutocomplete($("input[id$='calc_row_contragent']"));
+
+        // Делаем элементы обязательными для заполнения
+        $("div[class='calc-sheet-table']").find('table').find('input').prop('required', true);
+        $("div[class='calc-sheet-table']").find('select').prop('required', true);
+        // Кроме этих
+        $("div[class='calc-sheet-table']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
+        $("div[class='calc-sheet-table']").find('table').find('input[type=checkbox]').prop('required', false);
+
+    })
+</script>
+{% endblock %}
+
