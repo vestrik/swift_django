@@ -83,8 +83,8 @@
                     </table>                    
                     <div class="calculation-sheet-button-and-total">
                         <div class="calculation-sheet-buttons">
-                            <input class="base_button" type="button" value=" + " id="debit row_form_add_more">
-                            <input class="base_button" type="button" value=" - " id="debit row_form_remove">
+                            <input class="base_button" type="button" value="Добавить новую строку" id="debit row_form_add_more">
+                            <input class="base_button" type="button" value="Удалить новую строку" id="debit row_form_remove">
                         </div>            
                         <div class="calculation-sheet-total">
                             <div class="calculation-sheet-total-label"><p>Итого:</p></div>
@@ -134,8 +134,8 @@
                     </table>
                     <div class="calculation-sheet-button-and-total">
                         <div class="calculation-sheet-buttons">
-                            <input class="base_button" type="button" value=" + " id="credit row_form_add_more">
-                            <input class="base_button" type="button" value=" - " id="credit row_form_remove">
+                            <input class="base_button" type="button" value="Добавить новую строку" id="credit row_form_add_more">
+                            <input class="base_button" type="button" value="Удалить новую строку" id="credit row_form_remove">
                         </div>            
                         <div class="calculation-sheet-total">
                             <div class="calculation-sheet-total-label"><p>Итого:</p></div>
@@ -185,7 +185,7 @@
         var margin_sum = $('#debit-total-sum_1').val() - $('#credit-total-sum_1').val() || 0;
         var margin_prcnt = margin_sum / $('#debit-total-sum_1').val() * 100 || 0;
         $('#margin-total-sum').val(margin_sum.toFixed(2));
-        $('#margin-total-percent').val(margin_prcnt + ' %')
+        $('#margin-total-percent').val(margin_prcnt.toFixed(2) + ' %');
     }
 
     // Вынесли логику автокомплита в функцию
@@ -244,13 +244,10 @@
     // Получаем массив из Django
     var ClientData = {{ clients_data|safe }};
     var articleServicesData = {{ article_services_data|safe }};
-    var Orders = {{ orders|safe }};
-  
+    var Orders = {{ orders|safe }};  
 
     $(document).ready(function() {
 
-        
-    
         $('tr.calc-row').each(function() {
             calculateRowSum($(this));
         });
@@ -272,9 +269,10 @@
 
         // Делаем элементы обязательными для заполнения
         $("div[class='calc-sheet-table']").find('table').find('input').prop('required', true);
+        $("div[class='calc-sheet-table']").find('select').prop('required',true);
         // Кроме этих
         $("div[class='calc-sheet-table']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
-        $("div[class='calc-sheet-table']").find('select').prop('required',true);
+        
 
         // Добавление строк
         $('input[id$="row_form_add_more"]').click(function() {
@@ -325,15 +323,15 @@
             // Не удаляем если осталась 1 строка
             if (rows.length > 1) {
                 rows.last().remove();
-            }
-            // Уменьшаем кол-во форм на 1
-            var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
-            $('#id_' + type + '-TOTAL_FORMS').val(total - 1);            
+            
+                // Уменьшаем кол-во форм на 1
+                var total = parseInt($('#id_' + type + '-TOTAL_FORMS').val(), 10);
+                $('#id_' + type + '-TOTAL_FORMS').val(total - 1);      
+            }      
             
             var table = $("table." + type + "_table");
             calculateTotalTable(table); // Пересчет после удаления
         });
-
     
         // когда пропадает фокус с элемента id_order_no
         $('#id_order_no').focusout(function () {
