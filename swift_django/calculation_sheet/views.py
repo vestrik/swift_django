@@ -10,6 +10,8 @@ from .models import CalculationSheet, CalculationSheetRow
 
 
 def fetch_orders_from_db():
+    """ Получаем список заявок из БД """
+    
     with connections['sol_cargo'].cursor() as cursor:
         sql = '''
                 select job_num from sol_cargo.airflow_swift_rus_profit 
@@ -22,6 +24,8 @@ def fetch_orders_from_db():
     return orders
 
 def fetch_clients_and_services_data_from_db():
+    """ Получаем из БД клиентов, их ИНН, а также статьи услуг """
+    
     clients_data = []
     with connections['sol_cargo'].cursor() as cursor:
         sql = ''' select customer_name, ifnull(tax_registration_number, '') from airflow_customer_info order by customer_name; '''
@@ -36,6 +40,8 @@ def fetch_clients_and_services_data_from_db():
     return clients_data, article_services_data
 
 def fetch_order_data_from_db(job_num):
+    """ По номеру заявки получаем ее данные из БД """
+    
     job_num_data = {}
     if job_num is not None:
         sql = f'''
@@ -62,6 +68,23 @@ def home(request):
     
     calc_sheets = CalculationSheet.objects.all()
     return render(request, 'calculation_sheet/calculation_sheet_list.html', {'calc_sheets': calc_sheets})
+
+def process_rows_formset(request, formset, calc_sheet_id: None, need_deletion: False):
+    """ Сохраняем созданный/измененный формсет. При необходимости удаляем записи в БД. """
+    
+    formset_instance = formset.save(commit=False)    
+
+    for row_form_instance in formset_instance:      
+        if row_form_instance.created_by == '':
+            row_form_instance.created_by = str(request.user)         
+        row_form_instance.edited_by = str(request.user)
+        row_form_instance.edited_at = timezone.now()
+        if calc_sheet_id is not None:
+            row_form_instance.calculation_sheet_id = calc_sheet_id
+        row_form_instance.save()
+    if need_deletion:
+        for form_to_delete in formset.deleted_objects:
+            form_to_delete.delete()     
   
 def create_calculation_sheet(request):
     """ Создаем расчетный лист """
@@ -81,20 +104,8 @@ def create_calculation_sheet(request):
 
             if debit_row_formset.is_valid() and credit_row_formset.is_valid(): 
                 calc_sheet_instance.save()
-                              
-                debit_row_formset_instance = debit_row_formset.save(commit=False)              
-                for debit_row_form_instance in debit_row_formset_instance:
-                    debit_row_form_instance.created_by = str(request.user)
-                    debit_row_form_instance.edited_by = str(request.user)
-                    debit_row_form_instance.save()            
-            
-                credit_row_formset_instance = credit_row_formset.save(commit=False)
-                for credit_row_form_instance in credit_row_formset_instance:
-                    
-                    credit_row_form_instance.created_by = str(request.user)
-                    credit_row_form_instance.edited_by = str(request.user)
-                    credit_row_form_instance.save()                               
-                            
+                process_rows_formset(request, debit_row_formset)
+                process_rows_formset(request, credit_row_formset)                                                                  
                 return redirect('calculation_sheet:home')
     else:
         debit_row_formset = CalculationSheetRowDebitFormSet(prefix='debit')
@@ -115,11 +126,15 @@ def create_calculation_sheet(request):
     
     
 def fetch_data_for_order(request):
+    """ AJAX-ом получаем данные заявки и отдаем для рендера """
+    
     job_num = request.POST.get('job_num', None)
     return_data = fetch_order_data_from_db(job_num)
     return JsonResponse(return_data)
 
 def view_info(request, id):
+    """ Просмотр расчетного листа """
+    
     calc_sheet_info = CalculationSheet.objects.get(id=id)
     calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')    
     calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')    
@@ -153,23 +168,11 @@ def view_info(request, id):
         'calc_sheet_credit_rows': calc_sheet_credit_rows
     }
     
-    return render(request, 'calculation_sheet/calculation_sheet_info.html', context)
-
-def process_rows_formset(request, formset, calc_sheet_id):
-    """ Обрабатываем изменение формсета: удаляем отмеченные, прописываем дату изменения, пользователя """
-    formset_instance = formset.save(commit=False)    
-
-    for row_form_instance in formset_instance:      
-        if row_form_instance.created_by == '':
-            row_form_instance.created_by = str(request.user)         
-        row_form_instance.edited_by = str(request.user)
-        row_form_instance.edited_at = timezone.now()
-        row_form_instance.calculation_sheet_id = calc_sheet_id
-        row_form_instance.save()
-    for form_to_delete in formset.deleted_objects:
-        form_to_delete.delete()       
+    return render(request, 'calculation_sheet/calculation_sheet_info.html', context)    
 
 def edit_info(request, id):    
+    """ Изменение расчетного листа """
+    
     CalculationSheetRowDebitFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowDebitForm, extra=0, can_delete=True)    
     CalculationSheetRowCreditFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowCreditForm, extra=0, can_delete=True)   
     if request.method == 'POST':
@@ -177,9 +180,9 @@ def edit_info(request, id):
         credit_row_formset = CalculationSheetRowCreditFormSet(request.POST, prefix='credit')
         if debit_row_formset.is_valid() and credit_row_formset.is_valid():             
             if debit_row_formset.has_changed():
-                process_rows_formset(request, debit_row_formset, id)                          
+                process_rows_formset(request, debit_row_formset, calc_sheet_id=id, need_deletion=True)                          
             if credit_row_formset.has_changed():
-                process_rows_formset(request, credit_row_formset, id)                             
+                process_rows_formset(request, credit_row_formset, calc_sheet_id=id, need_deletion=True)                            
                         
             return redirect('calculation_sheet:view_info', id)
     else:
