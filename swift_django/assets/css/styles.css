@@ -137,15 +137,6 @@ input[id='debit-total-sum'] {min-width: 100px;width: 120px;}
 .calculation-sheet-total-rub-label {margin-left: 3px;}
 .calculation-list-total-info p {padding: 3px; margin: 3px;}
 
-/* -------------- -------- -------------- */
-
-/* -------------- просмотр -------------- */
-
-.debit_table, .credit_table {
-  width: 10%;
-}
-
-/* -------------- -------- -------------- */
 
 /* -------------- изменение -------------- */
 .delete-row-th {
