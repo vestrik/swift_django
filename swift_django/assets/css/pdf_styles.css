@@ -1,0 +1,95 @@
+@page { size: A4 landscape; margin: 0px; }
+:root {
+  --primary-color: #2C3E50;    /* Темно-синий для заголовков и акцентов */
+  --background-color: #F9F9F9; /* Светлый фон */
+  --text-color: #34495E;       /* Основной цвет текста */
+  --light-gray: #ECF0F1;       /* Светло-серый для фона секций */
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif, 'Noto Sans TC',;  
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font-size: small;
+
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 8px 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin: 1rem 0;
+}
+
+body main {margin: 6px 0;}
+
+/* ------------------- Расчетный лист ------------------- */
+.calculation-sheet-card-name {
+  font-size: large;
+  font-weight: 750;
+  margin: 6px;
+}
+
+.calc-sheet-input {
+  width: 150px;
+  height: 15px;
+  padding: 5px;
+  margin: 5px;
+  border-width: 0.6px;
+  border-style: inset;
+  color: rgb(84, 84, 84);
+  border-color: rgba(118, 118, 118, 0.3);
+}
+
+/* Карточка с данными по заявке */
+.order-data {display: flex;}
+.order-data p {margin: 0px;padding: 3px;}
+
+.order-data_user-input {padding-left: 12px;width: 15%;min-width: 200px;}
+.order-data_fetched {padding-left: 8px;padding:5px}
+.order-data_fetched * {margin: 5px;padding: 5px;}
+
+.order-data_client-input {
+  width: 300px;
+}
+
+.total-values-input {
+  width: 120px;
+  margin: 0px 12px 0px 0px;
+}
+
+/* Карточка с доходами/расходами */ 
+.calculation-list-credit, .calculation-list-debit p {
+  margin-bottom: 6px;
+  margin-top: 6px;
+}
+.div_horizontal {display: flex;padding: 0px;}
+.calc-sheet-table {margin: 0px;}
+.calc-sheet-table table {width: 100%; table-layout: fixed;}
+.calc-sheet-table td {padding: 0px 3.5px; font-weight: lighter; font-size:smaller;}
+.calc-sheet-table th {font-weight: 500;font-weight: lighter; font-size:smaller; padding: 0px 0px 0px 6px;}
+.calc-sheet-table input, select {
+  height: 100%;
+  width: 100%;
+  min-width: 55px;
+  border-width: 1px;
+  border-style: inset;
+  color: rgb(84, 84, 84);
+  border-color: rgba(118, 118, 118, 0.3);
+}
+
+.calc-sheet-table tr {
+  width: 100%;
+}
+
+.row-contragent-td {width: 190px;}
+.row-service-td {width: 170px;}
+.row-currency-td {width: 30px;}
+.row-count-td {width: 40px;}
+.row-single_amount-td {width: 50px;}
+.row-exchange_rate-td {width: 30px;}
+.row-has_nds-td {width: 30px;}
+.row-ttl_nds_price-td {width: 50px;}
+.row-ttl_price_without_nds-td {width: 65px;}
+.row-total_price-td {width: 75px;}
