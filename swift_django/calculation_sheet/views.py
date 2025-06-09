@@ -69,7 +69,7 @@ def home(request):
     calc_sheets = CalculationSheet.objects.all()
     return render(request, 'calculation_sheet/calculation_sheet_list.html', {'calc_sheets': calc_sheets})
 
-def process_rows_formset(request, formset, calc_sheet_id: None, need_deletion: False):
+def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=False):
     """ Сохраняем созданный/измененный формсет. При необходимости удаляем записи в БД. """
     
     formset_instance = formset.save(commit=False)    
@@ -132,27 +132,36 @@ def fetch_data_for_order(request):
     return_data = fetch_order_data_from_db(job_num)
     return JsonResponse(return_data)
 
+def calc_ttl_sum_for_calc_sheet_rows(calc_sheet_rows):    
+    """ Вычисляем общую сумму в таблице по заявке """
+    
+    total_sum = 0
+    for calc_sheet_row in calc_sheet_rows:
+        calc_sheet_row.total = round((calc_sheet_row.calc_row_ttl_price_without_nds + calc_sheet_row.calc_row_ttl_nds_price) * calc_sheet_row.calc_row_exchange_rate, 2)
+        total_sum += calc_sheet_row.total 
+    return total_sum
+
+def calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum):   
+    """ Вычисляем маржу и ее % по заявке """
+     
+    margin = round(debit_total_sum - credit_total_sum, 2)
+    try:
+        margin_prcnt = f'{round((debit_total_sum - credit_total_sum) / debit_total_sum * 100, 2)} %'
+    except ZeroDivisionError:
+        margin_prcnt = 0       
+    
+    return margin, margin_prcnt
+
 def view_info(request, id):
     """ Просмотр расчетного листа """
     
     calc_sheet_info = CalculationSheet.objects.get(id=id)
     calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')    
     calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')    
-    debit_total_sum, credit_total_sum = 0, 0
-    
-    for calc_sheet_debit_row in calc_sheet_debit_rows:
-        calc_sheet_debit_row.total = round((calc_sheet_debit_row.calc_row_ttl_price_without_nds + calc_sheet_debit_row.calc_row_ttl_nds_price) * calc_sheet_debit_row.calc_row_exchange_rate, 2)
-        debit_total_sum += calc_sheet_debit_row.total   
-             
-    for calc_sheet_credit_row in calc_sheet_credit_rows:
-        calc_sheet_credit_row.total = round((calc_sheet_credit_row.calc_row_ttl_price_without_nds + calc_sheet_credit_row.calc_row_ttl_nds_price) * calc_sheet_credit_row.calc_row_exchange_rate, 2)
-        credit_total_sum += calc_sheet_credit_row.total
+    debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(calc_sheet_debit_rows), calc_ttl_sum_for_calc_sheet_rows(calc_sheet_credit_rows)
         
     job_num_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-    try:
-        margin_prcnt = f'{round((debit_total_sum - credit_total_sum) / debit_total_sum * 100, 2)} %'
-    except ZeroDivisionError:
-        margin_prcnt = 'Деление на 0!'
+    margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
     context = {
         'calc_sheet_info': calc_sheet_info,
         'order_department': job_num_data['department'],
@@ -162,7 +171,7 @@ def view_info(request, id):
         'order_station_to': job_num_data['station_to'],
         'debit_total_sum': round(debit_total_sum, 2),
         'credit_total_sum': round(credit_total_sum, 2),
-        'margin_total_sum': round(debit_total_sum - credit_total_sum, 2),
+        'margin_total_sum': margin,
         'margin_prcnt': margin_prcnt,
         'calc_sheet_debit_rows': calc_sheet_debit_rows,
         'calc_sheet_credit_rows': calc_sheet_credit_rows
