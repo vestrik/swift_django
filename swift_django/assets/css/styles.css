@@ -55,6 +55,16 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
+.django-messages-li-error {
+  margin: 8px;
+  padding: 8px;
+  list-style: none;
+  background-color: #ff31319a;
+  color: white;
+  box-shadow: 12px 12px 12px #00000033;
+  text-align: center;
+}
+
 /* ---------------- Навигационное меню ---------------- */
 .navbar {
   background: white;
@@ -137,6 +147,11 @@ input[id='debit-total-sum'] {min-width: 100px;width: 120px;}
 .calculation-sheet-total-rub-label {margin-left: 3px;}
 .calculation-list-total-info p {padding: 3px; margin: 3px;}
 
+/* -------------- Просмотр -------------- */
+.sbis-actions-buttons {margin-left: 16px;}
+
+.order-sbis-status {margin: 8px;}
+/* -------------- --------- -------------- */
 
 /* -------------- изменение -------------- */
 .delete-row-th {
