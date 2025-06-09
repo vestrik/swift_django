@@ -1,6 +1,11 @@
+import requests
 import json
+import base64
+from weasyprint import HTML, CSS
 from django.utils import timezone
+from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.forms import  inlineformset_factory, modelformset_factory
 from django.db import connections
 from django.http import JsonResponse
@@ -8,6 +13,7 @@ from django.http import JsonResponse
 from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
 from .models import CalculationSheet, CalculationSheetRow
 
+ERR_MESSAGE_ENDING = ' Обратитесь на почту m.golovanov@uk-swift.ru.'
 
 def fetch_orders_from_db():
     """ Получаем список заявок из БД """
@@ -212,3 +218,131 @@ def edit_info(request, id):
             'article_services_data': json.dumps(article_services_data),
         }   
         return render(request, 'calculation_sheet/calculation_sheet_edit.html', context)
+    
+def fetch_sbis_auth_data_from_db():
+    """ Получаем данные авторизации для Сбис """
+    
+    with connections['sol_cargo'].cursor() as cursor:
+        sql = '''
+                select 
+                    replace(JSON_EXTRACT(connection_data_json, '$.login'), '"', '') as login, 
+                    replace(JSON_EXTRACT(connection_data_json, '$.password'), '"', '') as password 
+                from airflow_connection_data where connection_source = 'sbis';
+            '''
+        cursor.execute(sql)
+        rows = cursor.fetchone()
+        login, password = rows
+        return login, password
+    
+def sbis_auth(headers):
+    """ Логинимся в СБИСе """
+    
+    login, password = fetch_sbis_auth_data_from_db()
+    data = {
+        'jsonrpc': '2.0',
+        'method': 'СБИС.Аутентифицировать',
+        'params': {
+            'Логин': login,
+            'Пароль': password
+        },
+        'id': 1
+    }
+    response = requests.post(f'https://online.sbis.ru/auth/service/', data=json.dumps(data), headers=headers, timeout=60)
+    return response.json()['result']
+
+
+def make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data):
+    """ Создаем ПДФ """
+
+    context = {
+        'calc_sheet_info': calc_sheet_info,
+        'order_department': order_data['department'],
+        'order_box': order_data['box'],
+        'order_client': order_data['client'],
+        'order_station_from': order_data['station_from'],
+        'order_station_to': order_data['station_to'],
+        'debit_total_sum': round(debit_total_sum, 2),
+        'credit_total_sum': round(credit_total_sum, 2),
+        'margin_total_sum': margin,
+        'margin_prcnt': margin_prcnt,
+        'calc_sheet_debit_rows': debit_data,
+        'calc_sheet_credit_rows': credit_data
+    }
+    # Рендерим html шаблон с данными
+    html = render_to_string("calculation_sheet/templates_for_pdf_render/calculation_sheet_for_sbis.html", context)    
+    # Читаем css 
+    with open('assets/css/pdf_styles.css') as file:
+        css_str = file.read()        
+    # Формируем ПДФ, сохраняем в память
+    byte_ = HTML(string=html).write_pdf(presentational_hints=True, stylesheets=[CSS(string=css_str)])
+    # Переводим в base64
+    bs = base64.b64encode(byte_).decode('ascii')              
+    return bs
+       
+def sbis_create_task(request, id):
+    """ Создаем задачу в Сбисе """
+    
+    try:
+        calc_sheet_info = CalculationSheet.objects.get(id=id)
+        order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
+        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
+        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
+        debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
+        margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
+    except:
+        messages.add_message(request, messages.ERROR, f"Ошибка при получении данных расчетного листа.{ERR_MESSAGE_ENDING}")
+    try:
+        pdf = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)
+    except:
+        messages.add_message(request, messages.ERROR, f"Ошибка при формировании ПДФ.{ERR_MESSAGE_ENDING}")
+    headers = {'Content-Type': 'application/json-rpc;charset=utf-8'}
+    headers['X-SBISSessionID'] = sbis_auth(headers)
+    data = {
+        "jsonrpc": "2.0",
+        "method": "СБИС.ЗаписатьДокумент",
+        "params": {
+            "Документ": {
+                "Тип": "СлужЗап",
+                "Регламент": {
+                    "Идентификатор": "b682c681-869d-4aa9-8aa8-28678c4af097",
+                },
+                "НашаОрганизация": {
+                    "СвЮЛ": {
+                        "ИНН": "9705052741",
+                        "КПП": "772601001",
+                    }
+                },
+                "Ответственный": {
+                    "Фамилия": "Голованов",
+                    "Имя": "Михаил",
+                    "Отчество": "Андреевич"
+                },
+                "Автор": {
+                    "Фамилия": "Голованов",
+                    "Имя": "Михаил",
+                    "Отчество": "Андреевич"
+                },
+                "Вложение": [
+                    {
+                        "Файл": {    
+                                "Имя": f"{calc_sheet_info.order_no}_{calc_sheet_info.calc_sheet_no}.pdf",                        
+                                "ДвоичныеДанные": f'{pdf}'
+                            }
+                    }
+                ]
+            }
+        },
+        "id": 0
+    }
+    try:
+        response = requests.post(f'https://online.sbis.ru/service/?srv=1', data=json.dumps(data), headers=headers, timeout=60)
+    except:
+        messages.add_message(request, messages.ERROR, f"Ошибка при отправке запроса в Сбис.{ERR_MESSAGE_ENDING}")
+    if response.status_code == 200:
+        sbis_href = response.json()['result']['СсылкаДляНашаОрганизация']
+        calc_sheet_info.sbis_href = sbis_href
+        calc_sheet_info.sbis_approval_status = 'cоздана задача в Сбис (черновик)'
+        calc_sheet_info.save()
+    else:
+        messages.add_message(request, messages.ERROR, f"Не удалось создать задачу в Сбисе: {response.json()['error']['message']}.{ERR_MESSAGE_ENDING}")
+    return redirect('calculation_sheet:view_info', calc_sheet_info.id)

@@ -4,6 +4,19 @@
 
 <div class="calculation-sheet-info">
     <div class="card">
+        <div class="div_horizontal">
+            <p class="calculation-sheet-card-name">Статус заявки: </p>
+            <p class="calculation-sheet-card-name" id="order-sbis-status">{{calc_sheet_info.sbis_approval_status}}</p>
+            <div class="sbis-actions-buttons">
+                {% if not calc_sheet_info.sbis_href %}
+                <a href="{% url 'calculation_sheet:sbis_create_task' calc_sheet_info.id %}" class="base_button">Создать задачу в Сбис</a>
+                {% else %}
+                <a href="{{ calc_sheet_info.sbis_href }}" class="base_button">Открыть задачу в Сбис</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="card">
         <p class="calculation-sheet-card-name">Заявка</p>
         <div class="order-data">
             <div class="order-data_user-input">
@@ -118,5 +131,25 @@
     <a href="{% url 'calculation_sheet:edit' calc_sheet_info.id %}" class="base_button">Редактировать</a>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    $(document).ready(function() { 
+        var sbis_status = $('#order-sbis-status').text()
+        if (sbis_status == 'cоздана задача в Сбис (черновик)') {
+            $('#order-sbis-status').css('color', '#f52cb9')
+        }
+        if (sbis_status == 'задача в процессе согласования') {
+            $('#order-sbis-status').css('color', '#0672ff')
+        }
+        if (sbis_status == 'задача согласованна') {
+            $('#order-sbis-status').css('color', '#00ac0e')
+        }
+        if (sbis_status == 'задача не согласованна') {
+            $('#order-sbis-status').css('color', '#ac0000')
+        }
+    })
+</script>
 
 {% endblock %}
