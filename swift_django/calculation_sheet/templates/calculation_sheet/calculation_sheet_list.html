@@ -3,9 +3,25 @@
 {% block content %}
 
 <div class="card">
+    <form class="calc-sheet-filter-form" method="get">        
+        <div>
+            <p>Номер заявки</p>
+            {{ calc_sheet_filter.form.order_no }}
+
+            <p>Расчетный лист</p>
+            {{ calc_sheet_filter.form.calc_sheet_no }}
+
+            <p>Статус заявки в Сбисе</p>
+            {{ calc_sheet_filter.form.sbis_approval_status }}
+        </div>
+        <button class="base_button" type="submit">Найти</button>
+    </form>
+</div>
+
+<div class="card">
     <a href="{% url 'calculation_sheet:create' %}" class="base_button">Создать р\л</a>
     {% for calc_sheet in calc_sheets %}    
-        <div class="card"><a href="{% url 'calculation_sheet:view_info' calc_sheet.id %}">{{ calc_sheet.order_no }} {{ calc_sheet.calc_sheet_no}}</a></div>        
+        <div class="card"><a href="{% url 'calculation_sheet:view_info' calc_sheet.id %}">Расчетный лист {{ calc_sheet.order_no }} по заявке {{ calc_sheet.calc_sheet_no}} ({{calc_sheet.sbis_approval_status}})</a></div>        
     {% endfor %}
 </div>
 

@@ -99,6 +99,18 @@ input::-webkit-inner-spin-button {
   border-color: rgba(118, 118, 118, 0.3);
 }
 
+.calc-sheet-filter-form, .calc-sheet-filter-form * {
+  display: flex;
+  margin: 5px;
+}
+
+.calc-sheet-filter-form input {background-color: white;}
+
+#id_sbis_approval_status {
+  width: 250px;
+  height: 26.8px;
+}
+
 
 /* -------------- создание -------------- */
 
@@ -106,7 +118,7 @@ input::-webkit-inner-spin-button {
 .order-data {display: flex;}
 .order-data p {margin: 0px;padding: 3px;}
 
-input[id='id_order_no'], input[id='id_calc_sheet_no'] {
+.create-calculation-sheet input[id='id_order_no'], .create-calculation-sheet input[id='id_calc_sheet_no'] {
   background-color: rgba(255, 161, 161, 0.3);
 }
 .order-data_user-input {padding-left: 16px;width: 15%;min-width: 220px;}

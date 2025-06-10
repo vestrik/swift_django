@@ -9,7 +9,9 @@ from django.template.loader import render_to_string
 from django.forms import  inlineformset_factory, modelformset_factory
 from django.db import connections
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
+from .filters import CalculationSheetFilter
 from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
 from .models import CalculationSheet, CalculationSheetRow
 
@@ -68,12 +70,14 @@ def fetch_order_data_from_db(job_num):
                     "station_to": result[4]}
     return job_num_data
 
-
+@login_required(login_url='accounts:login')
 def home(request):    
     """ Домашняя страница """
     
-    calc_sheets = CalculationSheet.objects.all()
-    return render(request, 'calculation_sheet/calculation_sheet_list.html', {'calc_sheets': calc_sheets})
+    calc_sheets = CalculationSheet.objects.all().order_by('-created_at')
+    calc_sheet_filter = CalculationSheetFilter(request.GET, queryset=calc_sheets)
+    calc_sheets = calc_sheet_filter.qs[:10]
+    return render(request, 'calculation_sheet/calculation_sheet_list.html', {'calc_sheets': calc_sheets, 'calc_sheet_filter': calc_sheet_filter})
 
 def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=False):
     """ Сохраняем созданный/измененный формсет. При необходимости удаляем записи в БД. """
@@ -91,7 +95,8 @@ def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=Fal
     if need_deletion:
         for form_to_delete in formset.deleted_objects:
             form_to_delete.delete()     
-  
+
+@login_required(login_url='accounts:login')
 def create_calculation_sheet(request):
     """ Создаем расчетный лист """
     
@@ -158,6 +163,7 @@ def calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum):
     
     return margin, margin_prcnt
 
+@login_required(login_url='accounts:login')
 def view_info(request, id):
     """ Просмотр расчетного листа """
     
@@ -185,6 +191,7 @@ def view_info(request, id):
     
     return render(request, 'calculation_sheet/calculation_sheet_info.html', context)    
 
+@login_required(login_url='accounts:login')
 def edit_info(request, id):    
     """ Изменение расчетного листа """
     
@@ -278,7 +285,8 @@ def make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, mar
     # Переводим в base64
     bs = base64.b64encode(byte_).decode('ascii')              
     return bs
-       
+
+@login_required(login_url='accounts:login')
 def sbis_create_task(request, id):
     """ Создаем задачу в Сбисе """
     
