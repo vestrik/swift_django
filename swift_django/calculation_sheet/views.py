@@ -77,7 +77,12 @@ def home(request):
     calc_sheets = CalculationSheet.objects.all().order_by('-created_at')
     calc_sheet_filter = CalculationSheetFilter(request.GET, queryset=calc_sheets)
     calc_sheets = calc_sheet_filter.qs[:10]
-    return render(request, 'calculation_sheet/calculation_sheet_list.html', {'calc_sheets': calc_sheets, 'calc_sheet_filter': calc_sheet_filter})
+    context = {
+        'calc_sheets': calc_sheets,
+        'calc_sheet_filter': calc_sheet_filter,
+        'redirect_to': request.path
+    }
+    return render(request, 'calculation_sheet/calculation_sheet_list.html', context)
 
 def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=False):
     """ Сохраняем созданный/измененный формсет. При необходимости удаляем записи в БД. """

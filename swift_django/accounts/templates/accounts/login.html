@@ -1,11 +1,12 @@
 {% extends 'base_layout.html' %}
+{% load i18n %}
 
 {% block content %}
 <div>
   <form class='login_form' action="{% url 'accounts:login' %}" method="post">
     {% csrf_token %}
     {{form.as_p}}
-    <input type='submit' class='base_button' value='Войти' />
+    <input type='submit' class='base_button' value="{% translate 'Войти' %}" />
   </form>
 </div>
 {% endblock %}

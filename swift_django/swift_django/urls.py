@@ -23,6 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(url='calculation_sheet/')),
     path('calculation_sheet/', include('calculation_sheet.urls')),
-    
+    path('i18n/', include('django.conf.urls.i18n')),    
     path('accounts/', include('accounts.urls')),
 ]

@@ -1,27 +1,32 @@
 {% extends 'base_layout.html' %}
 
 {% block content %}
+{% load i18n %}
 
 <div class="card">
     <form class="calc-sheet-filter-form" method="get">        
         <div>
-            <p>Номер заявки</p>
+            <p>{% translate 'Номер заявки' %}</p>
             {{ calc_sheet_filter.form.order_no }}
 
-            <p>Расчетный лист</p>
+            <p>{% translate 'Расчетный лист' %}</p>
             {{ calc_sheet_filter.form.calc_sheet_no }}
 
-            <p>Статус заявки в Сбисе</p>
+            <p>{% translate 'Статус заявки в Сбисе' %}</p>
             {{ calc_sheet_filter.form.sbis_approval_status }}
         </div>
-        <button class="base_button" type="submit">Найти</button>
+        <button class="base_button" type="submit">{% translate 'Найти' %}</button>
     </form>
 </div>
 
 <div class="card">
-    <a href="{% url 'calculation_sheet:create' %}" class="base_button">Создать р\л</a>
+    <a href="{% url 'calculation_sheet:create' %}" class="base_button">{% translate 'Создать р\л' %}</a>
     {% for calc_sheet in calc_sheets %}    
-        <div class="card"><a href="{% url 'calculation_sheet:view_info' calc_sheet.id %}">Расчетный лист {{ calc_sheet.order_no }} по заявке {{ calc_sheet.calc_sheet_no}} ({{calc_sheet.sbis_approval_status}})</a></div>        
+        <div class="card">
+            <a href="{% url 'calculation_sheet:view_info' calc_sheet.id %}">
+                {% translate 'Расчетный лист' %} {{ calc_sheet.calc_sheet_no}} {% translate 'по заявке' %} {{ calc_sheet.order_no}} {{calc_sheet.sbis_approval_status}}
+            </a>
+        </div>        
     {% endfor %}
 </div>
 

@@ -1,30 +1,31 @@
 {% extends 'base_layout.html' %}
 
 {% block content %}
+{% load i18n %}
 
 
 <div class="create-calculation-sheet">
     <div class="card">
-        <p class="calculation-sheet-card-name">Заявка</p>
+        <p class="calculation-sheet-card-name">{% translate 'Заявка' %}</p>
         <div class="order-data">
             <div class="order-data_user-input">
-                <p>Заявка</p>
+                <p>{% translate 'Заявка' %}</p>
                 <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.order_no }}" disabled>                
-                <p>Номер расчетного листа</p>
+                <p>{% translate 'Номер расчетного листа' %}</p>
                 <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.calc_sheet_no }}" disabled>
             </div>
             <div class="order-data_fetched">
                 <div class="div_horizontal">
-                    <p>Данные из СОЛа автоматически загрузятся после выбора заявки</p>
+                    <p>{% translate 'Данные из СОЛа автоматически загрузятся после выбора заявки' %}</p>
                 </div>
                 <div class="div_horizontal">
-                    <p>Направление:</p><input class="calc-sheet-input" type="text" value="{{order_data.department}}" disabled>
-                    <p>Станция, от:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_from}}" disabled>
-                    <p>Станция, до:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_to}}" disabled>
+                    <p>{% translate 'Направление' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.department}}" disabled>
+                    <p>{% translate 'Станция, от' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_from}}" disabled>
+                    <p>{% translate 'Станция, до' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_to}}" disabled>
                 </div>
                 <div class="div_horizontal">
-                    <p>КТК:</p><input class="calc-sheet-input" type="text" value="{{order_data.box}}" disabled>
-                    <p>Клиент:</p><input class="calc-sheet-input" type="text" value="{{order_data.client}}" disabled>
+                    <p>{% translate 'КТК' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.box}}" disabled>
+                    <p>{% translate 'Клиент' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.client}}" disabled>
                 </div>
             </div>
         </div>
@@ -32,36 +33,36 @@
     <div class="card calculation-list-total-info">
         <p class="calculation-sheet-card-name">Итог</p>
         <div class="div_horizontal">
-            <p>Доход</p>
+            <p>{% translate 'Доход' %}</p>
             <input class="calc-sheet-input" type="text" id="debit-total-sum_1" disabled>
-            <p>Расход</p>
+            <p>{% translate 'Расход' %}</p>
             <input class="calc-sheet-input" type="text" id="credit-total-sum_1" disabled>
-            <p>Маржа</p>
+            <p>{% translate 'Маржа' %}</p>
             <input class="calc-sheet-input" type="text" id="margin-total-sum" disabled>
-            <p>% маржи</p>
+            <p>{% translate '% маржи' %}</p>
             <input class="calc-sheet-input" type="text" id="margin-total-percent" disabled>
         </div>
     </div>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="card">
-            <p class="calculation-sheet-card-name">Доход</p>
+            <p class="calculation-sheet-card-name">{% translate 'Доход' %}</p>
             {{ debit_row_formset.management_form }}
                 <div class="calc-sheet-table">
                     <table class="debit_table">
                         <thead>
                             <tr class="calc-row">
-                                <th>Клиент/Поставщик</th>
-                                <th>Статья услуг</th>
-                                <th>Валюта</th>
-                                <th>Кол-во</th>
-                                <th>Цена за ед. (в валюте)</th>
-                                <th>Курс</th>
-                                <th>НДС</th>
-                                <th>Сумма НДС (в валюте)</th>
-                                <th>Ставка без НДС  (в валюте)</th>
-                                <th>Сумма, руб.</th>
-                                <th class="delete-row-th">Удалить</th>
+                                <th>{% translate 'Клиент/Поставщик'%}</th>
+                                <th>{% translate 'Статья услуг' %}</th>
+                                <th>{% translate 'Валюта' %}</th>
+                                <th>{% translate 'Кол-во' %}</th>
+                                <th>{% translate 'Цена за ед., в валюте' %}</th>
+                                <th>{% translate 'Курс' %}</th>
+                                <th>{% translate 'НДС' %}</th>
+                                <th>{% translate 'Сумма НДС, в валюте' %}</th>
+                                <th>{% translate 'Сумма без НДС, в валюте' %}</th>
+                                <th>{% translate 'Сумма, руб' %}.</th>
+                                <th class="delete-row-th">{% translate 'Удалить' %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -86,36 +87,36 @@
                     </table>                    
                     <div class="calculation-sheet-button-and-total">
                         <div class="calculation-sheet-buttons">
-                            <input class="base_button" type="button" value="Добавить новую строку" id="debit row_form_add_more">
-                            <input class="base_button" type="button" value="Удалить новую строку" id="debit row_form_remove">
+                            <input class="base_button" type="button" value="{% translate 'Добавить новую строку' %}" id="debit row_form_add_more">
+                            <input class="base_button" type="button" value="{% translate 'Удалить новую строку' %}" id="debit row_form_remove">
                         </div>            
                         <div class="calculation-sheet-total">
-                            <div class="calculation-sheet-total-label"><p>Итого:</p></div>
+                            <div class="calculation-sheet-total-label"><p>{% translate 'Итого' %}:</p></div>
                             <div class="calculation-sheet-total-value"><input type="number" id="debit-total-sum_2" disabled></div>
-                            <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
+                            <div class="calculation-sheet-total-rub-label"><p>{% translate 'руб.' %}</p></div>
                         </div>
                     </div>
                 </div>            
         </div>  
                 
         <div class="card">
-            <p class="calculation-sheet-card-name">Расход</p>
+            <p class="calculation-sheet-card-name">{% translate 'Расход' %}</p>
             {{ credit_row_formset.management_form }}
                 <div class="calc-sheet-table" id="credit-form">
                     <table class="credit_table">
                         <thead>
                             <tr>
-                                <th>Клиент/Поставщик</th>
-                                <th>Статья услуг</th>
-                                <th>Валюта</th>
-                                <th>Кол-во</th>
-                                <th>Цена за ед. (в валюте)</th>
-                                <th>Курс</th>
-                                <th>НДС</th>
-                                <th>Сумма НДС (в валюте)</th>
-                                <th>Ставка без НДС  (в валюте)</th>
-                                <th>Сумма, руб.</th>
-                                <th class="delete-row-th">Удалить</th>
+                                <th>{% translate 'Клиент/Поставщик'%}</th>
+                                <th>{% translate 'Статья услуг' %}</th>
+                                <th>{% translate 'Валюта' %}</th>
+                                <th>{% translate 'Кол-во' %}</th>
+                                <th>{% translate 'Цена за ед., в валюте' %}</th>
+                                <th>{% translate 'Курс' %}</th>
+                                <th>{% translate 'НДС' %}</th>
+                                <th>{% translate 'Сумма НДС, в валюте' %}</th>
+                                <th>{% translate 'Сумма без НДС, в валюте' %}</th>
+                                <th>{% translate 'Сумма, руб' %}.</th>
+                                <th class="delete-row-th">{% translate 'Удалить' %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,19 +141,19 @@
                     </table>
                     <div class="calculation-sheet-button-and-total">
                         <div class="calculation-sheet-buttons">
-                            <input class="base_button" type="button" value="Добавить новую строку" id="credit row_form_add_more">
-                            <input class="base_button" type="button" value="Удалить новую строку" id="credit row_form_remove">
+                            <input class="base_button" type="button" value="{% translate 'Добавить новую строку' %}" id="credit row_form_add_more">
+                            <input class="base_button" type="button" value="{% translate 'Удалить новую строку' %}" id="credit row_form_remove">
                         </div>            
                         <div class="calculation-sheet-total">
-                            <div class="calculation-sheet-total-label"><p>Итого:</p></div>
+                            <div class="calculation-sheet-total-label"><p>{% translate 'Итого' %}:</p></div>
                             <div class="calculation-sheet-total-value"><input type="number" id="credit-total-sum_2" disabled></div>
-                            <div class="calculation-sheet-total-rub-label"><p>руб.</p></div>
+                            <div class="calculation-sheet-total-rub-label"><p>{% translate 'руб.' %}</p></div>
                         </div>
                     </div>
                 </div>
             
         </div>    
-        <button class="base_button" type="submit">Сохранить</button>
+        <button class="base_button" type="submit">{% translate 'Сохранить' %}</button>
         
     </form>
 </div>
@@ -251,10 +252,10 @@
     $('input[id$="row_form_add_more"]').click(function() {
         var type = this.id.split(' ')[0];
         if (type == 'credit') {
-            var calc_row_type_value = 'Расход';
+            var calc_row_type_value = "{% translate 'Расход' %}";
         }
         if (type == 'debit') {
-            var calc_row_type_value = 'Доход';
+            var calc_row_type_value = "{% translate 'Доход' %}";
         }
 
         // Клонируем БЕЗ событий/данных (чтобы не дублировать)

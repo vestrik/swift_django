@@ -1,10 +1,12 @@
 {% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Home Page</title>
+        <title>Swift</title>
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
         <link rel="icon" href="{% static 'favicon.png' %}" type="image/x-icon">
     </head>
@@ -13,27 +15,39 @@
             <div class="header-container">
                 <nav class="navbar">
                     <ul>
+                        <li class="li_right_side">
+                            <form class="change-language-form" action="{% url 'set_language' %}" method="post">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ redirect_to }}"  />
+                                <select name="language" id="language-select">
+                                    <option value="ru">&#127479;&#127482; Русский</option>
+                                    <option value="en">&#127482;&#127480; English</option>
+                                    <option value="cn">&#127464;&#127475; 中文</option>
+                                </select>
+                                <input type="submit" value="{% translate 'Сменить язык' %}">
+                            </form>
+                        </li>
                         {% if user.get_username %}
                         <li><div>
-                                <a href="{% url 'calculation_sheet:home' %}" class="base_button">Расчетные листы</a>
+                                <a href="{% url 'calculation_sheet:home' %}" class="base_button">{% translate 'Расчетные листы' %}</a>
                             </div>
                         </li>
                         <li class="li_right_side">
                             <div class="logout">
                                 <form class="logout_form" action="{% url 'accounts:logout' %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="base_button">Выйти</button>
+                                    <button type="submit" class="base_button">{% translate 'Выйти' %}</button>
                                 </form>
                             </div>
                         </li>
                         <li class="li_right_side">           
                             <div class="username_field">
-                                Вы вошли как: <span class="user_name">{{ user.get_username }}</span>
+                                {% translate 'Вы вошли как' %}: <span class="user_name">{{ user.get_username }}</span>
                             </div>
                         </li>
                         {% else %}
                         <li>
-                            <a href="{% url 'accounts:login' %}" class="base_button">Войти</a>
+                            <a href="{% url 'accounts:login' %}" class="base_button">{% translate 'Войти' %}</a>
                         </li>   
                         {% endif %}                     
                     </ul>
@@ -66,5 +80,13 @@
             </div>
         </footer>
     </body>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script>
+    $(document).ready(function() { 
+        $("#language-select").val("{{LANGUAGE_CODE}}").change()
+    })
+</script>
 
 </html>
