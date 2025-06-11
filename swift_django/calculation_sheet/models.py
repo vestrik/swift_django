@@ -32,6 +32,7 @@ class CalculationSheet(models.Model):
     order_no = models.CharField(max_length=100, blank=False, null=True)
     calc_sheet_no = models.CharField(max_length=100, blank=False, null=True)
     sbis_href = models.CharField(max_length=512, blank=True, null=True)
+    sbis_doc_id = models.CharField(max_length=256, blank=True, null=True)
     sbis_approval_status = models.CharField(max_length=128, blank=False, null=False, default='нет задачи в Сбис на согласование')
     
     def __str__(self):

@@ -352,8 +352,11 @@ def sbis_create_task(request, id):
     except:
         messages.add_message(request, messages.ERROR, f"Ошибка при отправке запроса в Сбис.{ERR_MESSAGE_ENDING}")
     if response.status_code == 200:
+        print(response.json()['result'])
         sbis_href = response.json()['result']['СсылкаДляНашаОрганизация']
+        sbis_doc_id = response.json()['result']['Идентификатор']
         calc_sheet_info.sbis_href = sbis_href
+        calc_sheet_info.sbis_doc_id = sbis_doc_id
         calc_sheet_info.sbis_approval_status = 'cоздана задача в Сбис (черновик)'
         calc_sheet_info.save()
     else:
