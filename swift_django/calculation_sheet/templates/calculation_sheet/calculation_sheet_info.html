@@ -147,16 +147,16 @@
 <script>
     $(document).ready(function() { 
         var sbis_status = $('#order-sbis-status').text()
-        if (sbis_status == "{% translate 'cоздана задача в Сбис (черновик)' %}") {
+        if (sbis_status == "{% translate 'Создана задача в Сбис (черновик)' %}") {
             $('#order-sbis-status').css('color', '#f52cb9')
         }
-        if (sbis_status == "{% translate 'задача в процессе согласования' %}") {
+        if (sbis_status == "{% translate 'Задача в процессе согласования' %}") {
             $('#order-sbis-status').css('color', '#0672ff')
         }
-        if (sbis_status == "{% translate 'задача согласована' %}") {
+        if (sbis_status == "{% translate 'Задача согласована' %}") {
             $('#order-sbis-status').css('color', '#00ac0e')
         }
-        if (sbis_status == "{% translate 'задача не согласована' %}") {
+        if (sbis_status == "{% translate 'Задача не согласована' %}") {
             $('#order-sbis-status').css('color', '#ac0000')
         }
     })
