@@ -1,5 +1,5 @@
 from .models import CalculationSheetRow, CalculationSheet
-from django.forms import ModelForm, CharField, TextInput, IntegerField, DecimalField, ChoiceField
+from django.forms import ModelForm, CharField, TextInput
 
 class CalculationSheetRowDebitForm(ModelForm):
     calc_row_type = CharField(initial='Доход')
@@ -9,7 +9,8 @@ class CalculationSheetRowDebitForm(ModelForm):
     class Meta:        
         model = CalculationSheetRow
         fields = ['calc_row_type', 'calc_row_contragent', 'calc_row_service_name', 'calc_row_currency', 'calc_row_count', 
-                  'calc_row_single_amount', 'calc_row_exchange_rate', 'calc_row_has_nds', 'calc_row_ttl_nds_price', 'calc_row_ttl_price_without_nds']
+                  'calc_row_single_amount', 'calc_row_exchange_rate', 'calc_row_has_nds', 'calc_row_ttl_nds_price', 'calc_row_ttl_price_without_nds',
+                  'calc_row_measure', 'calc_row_settlement_procedure']
         
 class CalculationSheetRowCreditForm(ModelForm):
     calc_row_type = CharField(initial='Расход')
@@ -19,7 +20,8 @@ class CalculationSheetRowCreditForm(ModelForm):
     class Meta:
         model = CalculationSheetRow
         fields = ['calc_row_type', 'calc_row_contragent', 'calc_row_service_name', 'calc_row_currency', 'calc_row_count', 
-                  'calc_row_single_amount', 'calc_row_exchange_rate', 'calc_row_has_nds', 'calc_row_ttl_nds_price', 'calc_row_ttl_price_without_nds']
+                  'calc_row_single_amount', 'calc_row_exchange_rate', 'calc_row_has_nds', 'calc_row_ttl_nds_price', 'calc_row_ttl_price_without_nds',
+                  'calc_row_measure', 'calc_row_settlement_procedure']
         
 
 class CalculationSheetForm(ModelForm):    

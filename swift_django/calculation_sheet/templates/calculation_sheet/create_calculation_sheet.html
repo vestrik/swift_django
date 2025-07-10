@@ -54,6 +54,8 @@
                             <tr class="calc-row">
                                 <th>{% translate 'Клиент/Поставщик' %}</th>
                                 <th>{% translate 'Статья услуг' %}</th>
+                                <th>{% translate 'Порядок расчета' %}</th>
+                                <th>{% translate 'Ед. измерения' %}</th>
                                 <th>{% translate 'Валюта' %}</th>
                                 <th>{% translate 'Кол-во' %}</th>
                                 <th>{% translate 'Цена за ед., в валюте' %}</th>
@@ -70,6 +72,8 @@
                                 <td class="calc_row_type_hidden">{{debit_row_form.calc_row_type}}</td>
                                 <td>{{debit_row_form.calc_row_contragent}}</td>
                                 <td>{{debit_row_form.calc_row_service_name}}</td>
+                                <td>{{debit_row_form.calc_row_settlement_procedure}}</td>
+                                <td>{{debit_row_form.calc_row_measure}}</td>                                
                                 <td>{{debit_row_form.calc_row_currency}}</td>
                                 <td>{{debit_row_form.calc_row_count}}</td>
                                 <td>{{debit_row_form.calc_row_single_amount}}</td>
@@ -105,6 +109,8 @@
                             <tr>
                                 <th>{% translate 'Клиент/Поставщик' %}</th>
                                 <th>{% translate 'Статья услуг' %}</th>
+                                <th>{% translate 'Порядок расчета' %}</th>
+                                <th>{% translate 'Ед. измерения' %}</th>
                                 <th>{% translate 'Валюта' %}</th>
                                 <th>{% translate 'Кол-во' %}</th>
                                 <th>{% translate 'Цена за ед., в валюте' %}</th>
@@ -120,7 +126,9 @@
                             <tr class="calc-row">                                
                                 <td class="calc_row_type_hidden">{{credit_row_form.calc_row_type}}</td>
                                 <td>{{credit_row_form.calc_row_contragent}}</td>
-                                <td class="credit-dropdown-service">{{credit_row_form.calc_row_service_name}}</td>
+                                <td class="credit-dropdown-service">{{credit_row_form.calc_row_service_name}}</td>                                
+                                <td>{{credit_row_form.calc_row_settlement_procedure}}</td>                                
+                                <td>{{credit_row_form.calc_row_measure}}</td>
                                 <td>{{credit_row_form.calc_row_currency}}</td>
                                 <td>{{credit_row_form.calc_row_count}}</td>
                                 <td>{{credit_row_form.calc_row_single_amount}}</td>
