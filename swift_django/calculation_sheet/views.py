@@ -10,6 +10,7 @@ from django.forms import  inlineformset_factory, modelformset_factory
 from django.db import connections
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from decimal import InvalidOperation
 
 from .filters import CalculationSheetFilter
 from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
@@ -41,7 +42,7 @@ def fetch_clients_and_services_data_from_db():
         rows = cursor.fetchall()
         for customer, inn in rows:
             clients_data.append({'customer': customer, 'inn': inn})
-        sql = ''' select service_acticle from airflow_service_acticle; '''
+        sql = ''' select service_acticle from airflow_service_article; '''
         cursor.execute(sql)
         rows = cursor.fetchall()
         article_services_data = [row[0] for row in rows]
@@ -163,8 +164,8 @@ def calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum):
     margin = round(debit_total_sum - credit_total_sum, 2)
     try:
         margin_prcnt = f'{round((debit_total_sum - credit_total_sum) / debit_total_sum * 100, 2)} %'
-    except ZeroDivisionError:
-        margin_prcnt = 0       
+    except (ZeroDivisionError, InvalidOperation):
+        margin_prcnt = 0    
     
     return margin, margin_prcnt
 
@@ -352,7 +353,6 @@ def sbis_create_task(request, id):
     except:
         messages.add_message(request, messages.ERROR, f"Ошибка при отправке запроса в Сбис.{ERR_MESSAGE_ENDING}")
     if response.status_code == 200:
-        print(response.json()['result'])
         sbis_href = response.json()['result']['СсылкаДляНашаОрганизация']
         sbis_doc_id = response.json()['result']['Идентификатор']
         calc_sheet_info.sbis_href = sbis_href
