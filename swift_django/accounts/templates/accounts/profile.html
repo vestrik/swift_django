@@ -1,0 +1,30 @@
+{% extends 'base_layout.html' %}
+{% load i18n %}
+{% block content %}
+
+<div class="card">
+    <form class="profile-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <p>{% translate 'Логин от Сбис:' %}</p>           
+            {{profile_form.sbis_login}}
+        </div>
+        <div>
+            <p>{% translate 'Пароль от Сбиса:' %}</p>
+            {{profile_form.sbis_password}}
+        </div>
+        <div>
+            <p>{% translate 'Логин от СОЛа:' %}</p>
+            {{profile_form.sol_login}}
+        </div>
+        <div>
+            <p>{% translate 'Пароль от СОЛа:' %}</p>
+            {{profile_form.sol_password}}
+        </div>   
+        <button class="base_button" type="submit">{% translate 'Сохранить' %}</button>
+    </form>
+</div>
+
+
+
+{% endblock %}

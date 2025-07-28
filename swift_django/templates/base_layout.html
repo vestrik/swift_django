@@ -34,12 +34,15 @@
                         </li>
                         <li class="li_right_side">
                             <div class="logout">
-                                <form class="logout_form" action="{% url 'accounts:logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="base_button">{% translate 'Выйти' %}</button>
-                                </form>
+                                <a href="{% url 'accounts:logout' %}" class="base_button">{% translate 'Выйти' %}</a>
                             </div>
                         </li>
+                        <li class="li_right_side">
+                            <div>
+                                <a href="{% url 'accounts:profile' %}" class="base_button">{% translate 'Профиль' %}</a>
+                            </div>
+                        </li>
+                        
                         <li class="li_right_side">           
                             <div class="username_field">
                                 {% translate 'Вы вошли как' %}: <span class="user_name">{{ user.get_username }}</span>
