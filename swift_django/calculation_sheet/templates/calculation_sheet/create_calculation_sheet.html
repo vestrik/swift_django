@@ -318,6 +318,23 @@
         // Если значение из списка
         if (Orders.includes(order_no)){
         //if (order_no.length == 16 && order_no.startsWith('MOS')) {
+            $.ajax({
+                data: {'job_num': $('#id_order_no').val()},
+                dataType: "json",
+                type: 'POST',
+                url: "{% url 'calculation_sheet:check_if_calc_sheet_exists' %}",
+                headers: {
+                    'X-CSRFToken': csrftoken 
+                },
+                success: function(data) {                    
+                    if (data.already_exists == 'true') {
+                        $('.django-messages').append('<ul class="messages"><li class="django-messages-li-error">Расчетный лист для этой заявки уже существует.</li></ul>');
+                    }
+                    else {
+                        $('.django-messages').empty();
+                    }
+                }
+            })
             // Отправляем запрос
             $.ajax({
                 data: {'job_num': $('#id_order_no').val()},

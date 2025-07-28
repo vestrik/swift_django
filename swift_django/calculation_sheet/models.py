@@ -73,7 +73,7 @@ class CalculationSheet(models.Model):
     author = models.CharField(max_length=100)
     created_at = models.DateTimeField(default=timezone.now)
     slug = models.SlugField(max_length=200, editable=False)
-    order_no = models.CharField(max_length=100, blank=False, null=True)
+    order_no = models.CharField(max_length=100, blank=False, null=True, unique=True)
     calc_sheet_no = models.CharField(max_length=100, blank=False, null=True)
     sbis_href = models.CharField(max_length=512, blank=True, null=True)
     sbis_doc_id = models.CharField(max_length=256, blank=True, null=True)

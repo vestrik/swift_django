@@ -11,6 +11,7 @@ from django.db import connections
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from decimal import InvalidOperation
+from django.core.exceptions import ObjectDoesNotExist
 
 from .filters import CalculationSheetFilter
 from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
@@ -106,6 +107,8 @@ def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=Fal
 def create_calculation_sheet(request):
     """ Создаем расчетный лист """
     
+    err_text = f"Ошибка при создании расчетного листа.{ERR_MESSAGE_ENDING}"
+    
     # Formset
     CalculationSheetRowDebitFormSet = inlineformset_factory(parent_model=CalculationSheet, model=CalculationSheetRow, 
         form=CalculationSheetRowDebitForm, extra=1)    
@@ -122,8 +125,16 @@ def create_calculation_sheet(request):
             if debit_row_formset.is_valid() and credit_row_formset.is_valid(): 
                 calc_sheet_instance.save()
                 process_rows_formset(request, debit_row_formset)
-                process_rows_formset(request, credit_row_formset)                                                                  
-                return redirect('calculation_sheet:home')
+                process_rows_formset(request, credit_row_formset)
+            else:
+                messages.add_message(request, messages.ERROR, err_text)
+        else:
+            print(calc_sheet_form.errors)
+            if 'Расчетный лист с таким Order no уже существует' in str(calc_sheet_form.errors):
+                err_text = f"Расчетный лист для заявки {str(calc_sheet_form['order_no'].value())} уже существует.{ERR_MESSAGE_ENDING}"
+            messages.add_message(request, messages.ERROR, err_text)
+        return redirect('calculation_sheet:home')   
+    
     else:
         debit_row_formset = CalculationSheetRowDebitFormSet(prefix='debit')
         credit_row_formset = CalculationSheetRowCreditFormSet(prefix='credit')
@@ -147,6 +158,18 @@ def fetch_data_for_order(request):
     
     job_num = request.POST.get('job_num', None)
     return_data = fetch_order_data_from_db(job_num)
+    return JsonResponse(return_data)
+
+def check_if_calc_sheet_exists(request):
+    """ Проверяем, существует ли расчетный лист по заявке """
+    
+    job_num = request.POST.get('job_num', None)
+    try:
+        CalculationSheet.objects.get(order_no=job_num)
+        return_data = {'already_exists': 'true'}
+    except ObjectDoesNotExist:
+        return_data = {'already_exists': 'false'}
+    
     return JsonResponse(return_data)
 
 def calc_ttl_sum_for_calc_sheet_rows(calc_sheet_rows):    
@@ -310,7 +333,10 @@ def sbis_create_task(request, id):
     except:
         messages.add_message(request, messages.ERROR, f"Ошибка при формировании ПДФ.{ERR_MESSAGE_ENDING}")
     headers = {'Content-Type': 'application/json-rpc;charset=utf-8'}
-    headers['X-SBISSessionID'] = sbis_auth(headers)
+    try:
+        headers['X-SBISSessionID'] = sbis_auth(headers)
+    except:
+        messages.add_message(request, messages.ERROR, f"Ошибка при авторизации в СБис.{ERR_MESSAGE_ENDING}")
     data = {
         "jsonrpc": "2.0",
         "method": "СБИС.ЗаписатьДокумент",
