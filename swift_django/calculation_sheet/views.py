@@ -1,6 +1,7 @@
-import requests
+import logging
 import json
 import base64
+import traceback
 from weasyprint import HTML, CSS
 from django.utils import timezone
 from django.contrib import messages
@@ -16,6 +17,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from .filters import CalculationSheetFilter
 from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
 from .models import CalculationSheet, CalculationSheetRow
+from .sbis_worker import SbisWorker
+
+logger = logging.getLogger(__name__)
 
 ERR_MESSAGE_ENDING = ' Обратитесь на почту m.golovanov@uk-swift.ru.'
 
@@ -255,38 +259,6 @@ def edit_info(request, id):
         }   
         return render(request, 'calculation_sheet/calculation_sheet_edit.html', context)
     
-def fetch_sbis_auth_data_from_db():
-    """ Получаем данные авторизации для Сбис """
-    
-    with connections['sol_cargo'].cursor() as cursor:
-        sql = '''
-                select 
-                    replace(JSON_EXTRACT(connection_data_json, '$.login'), '"', '') as login, 
-                    replace(JSON_EXTRACT(connection_data_json, '$.password'), '"', '') as password 
-                from airflow_connection_data where connection_source = 'sbis';
-            '''
-        cursor.execute(sql)
-        rows = cursor.fetchone()
-        login, password = rows
-        return login, password
-    
-def sbis_auth(headers):
-    """ Логинимся в СБИСе """
-    
-    login, password = fetch_sbis_auth_data_from_db()
-    data = {
-        'jsonrpc': '2.0',
-        'method': 'СБИС.Аутентифицировать',
-        'params': {
-            'Логин': login,
-            'Пароль': password
-        },
-        'id': 1
-    }
-    response = requests.post(f'https://online.sbis.ru/auth/service/', data=json.dumps(data), headers=headers, timeout=60)
-    return response.json()['result']
-
-
 def make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data):
     """ Создаем ПДФ """
 
@@ -320,71 +292,24 @@ def sbis_create_task(request, id):
     """ Создаем задачу в Сбисе """
     
     try:
+        # Получаем данные расчетного листа
         calc_sheet_info = CalculationSheet.objects.get(id=id)
         order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
         debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
         credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
         debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
         margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
-    except:
-        messages.add_message(request, messages.ERROR, f"Ошибка при получении данных расчетного листа.{ERR_MESSAGE_ENDING}")
-    try:
-        pdf = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)
-    except:
-        messages.add_message(request, messages.ERROR, f"Ошибка при формировании ПДФ.{ERR_MESSAGE_ENDING}")
-    headers = {'Content-Type': 'application/json-rpc;charset=utf-8'}
-    try:
-        headers['X-SBISSessionID'] = sbis_auth(headers)
-    except:
-        messages.add_message(request, messages.ERROR, f"Ошибка при авторизации в СБис.{ERR_MESSAGE_ENDING}")
-    data = {
-        "jsonrpc": "2.0",
-        "method": "СБИС.ЗаписатьДокумент",
-        "params": {
-            "Документ": {
-                "Тип": "СлужЗап",
-                "Регламент": {
-                    "Идентификатор": "b682c681-869d-4aa9-8aa8-28678c4af097",
-                },
-                "НашаОрганизация": {
-                    "СвЮЛ": {
-                        "ИНН": "9705052741",
-                        "КПП": "772601001",
-                    }
-                },
-                "Ответственный": {
-                    "Фамилия": "Голованов",
-                    "Имя": "Михаил",
-                    "Отчество": "Андреевич"
-                },
-                "Автор": {
-                    "Фамилия": "Голованов",
-                    "Имя": "Михаил",
-                    "Отчество": "Андреевич"
-                },
-                "Вложение": [
-                    {
-                        "Файл": {    
-                                "Имя": f"{calc_sheet_info.order_no}_{calc_sheet_info.calc_sheet_no}.pdf",                        
-                                "ДвоичныеДанные": f'{pdf}'
-                            }
-                    }
-                ]
-            }
-        },
-        "id": 0
-    }
-    try:
-        response = requests.post(f'https://online.sbis.ru/service/?srv=1', data=json.dumps(data), headers=headers, timeout=60)
-    except:
-        messages.add_message(request, messages.ERROR, f"Ошибка при отправке запроса в Сбис.{ERR_MESSAGE_ENDING}")
-    if response.status_code == 200:
-        sbis_href = response.json()['result']['СсылкаДляНашаОрганизация']
-        sbis_doc_id = response.json()['result']['Идентификатор']
+    
+        pdf = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)   
+               
+        sbis_href, sbis_doc_id = SbisWorker(request.user).create_approval_for_calc_list(calc_sheet_info.order_no, calc_sheet_info.calc_sheet_no, pdf)
+
         calc_sheet_info.sbis_href = sbis_href
         calc_sheet_info.sbis_doc_id = sbis_doc_id
         calc_sheet_info.sbis_approval_status = 'cоздана задача в Сбис (черновик)'
         calc_sheet_info.save()
-    else:
-        messages.add_message(request, messages.ERROR, f"Не удалось создать задачу в Сбисе: {response.json()['error']['message']}.{ERR_MESSAGE_ENDING}")
+        
+    except Exception as e:
+        logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
+        messages.add_message(request, messages.ERROR, f"Не удалось создать задачу в Сбис.{ERR_MESSAGE_ENDING}")
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)
