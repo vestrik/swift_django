@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-<div>
+<div class="card">
   <form class='login_form' action="{% url 'accounts:login' %}" method="post">
     {% csrf_token %}
     {{form.as_p}}

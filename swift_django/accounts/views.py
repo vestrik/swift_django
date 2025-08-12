@@ -36,8 +36,6 @@ def profile(request):
             profile_form_instance = profile_form.save(commit=False)
             profile_form_instance.user = request.user
             profile_form_instance.save()
-        else:
-            print(profile_form.errors)
         return redirect('accounts:profile')
     else:        
         profile_form = UserProfileForm(instance=profile)    
