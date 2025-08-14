@@ -1,16 +1,7 @@
 import logging
 import json
 import requests
-from django.db import connections
 from accounts.models import UserProfile
-
-
-
-def fetch_sbis_auth_data_from_db(user):
-    """ Получаем данные авторизации для Сбис """
-
-    user_profile = UserProfile.objects.filter(user_id=user).values('sbis_login', 'sbis_password')[0]        
-    return user_profile['sbis_login'], user_profile['sbis_password']
 
 class SbisWorker:
     
@@ -20,11 +11,18 @@ class SbisWorker:
         self.user = user
         self.user_fio = []
         self.logger = logging.getLogger(__name__)
-    
+        
+        
+    def __fetch_sbis_auth_data_from_db(self):
+        """ Получаем данные авторизации для Сбис """
+
+        user_profile = UserProfile.objects.filter(user_id=self.user).values('sbis_login', 'sbis_password')[0]        
+        return user_profile['sbis_login'], user_profile['sbis_password']
+
     def auth(self):
         """ Логинимся в СБИСе """
         
-        login, password = fetch_sbis_auth_data_from_db(self.user)
+        login, password = self.__fetch_sbis_auth_data_from_db()
         data = {
             'jsonrpc': '2.0',
             'method': 'СБИС.Аутентифицировать',
