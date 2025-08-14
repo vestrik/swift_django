@@ -85,11 +85,10 @@ body main {margin: 6px 0;}
 
 .row-contragent-td {width: 190px;}
 .row-service-td {width: 170px;}
+.row-settlement_procedure-td {width: 80px;}
+.row-measure-td {width: 80px;}
 .row-currency-td {width: 30px;}
 .row-count-td {width: 40px;}
 .row-single_amount-td {width: 50px;}
 .row-exchange_rate-td {width: 30px;}
-.row-has_nds-td {width: 30px;}
-.row-ttl_nds_price-td {width: 50px;}
-.row-ttl_price_without_nds-td {width: 65px;}
 .row-total_price-td {width: 75px;}

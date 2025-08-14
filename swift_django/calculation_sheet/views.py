@@ -181,7 +181,7 @@ def calc_ttl_sum_for_calc_sheet_rows(calc_sheet_rows):
     
     total_sum = 0
     for calc_sheet_row in calc_sheet_rows:
-        calc_sheet_row.total = round((calc_sheet_row.calc_row_ttl_price_without_nds + calc_sheet_row.calc_row_ttl_nds_price) * calc_sheet_row.calc_row_exchange_rate, 2)
+        calc_sheet_row.total = round(calc_sheet_row.calc_row_count * calc_sheet_row.calc_row_single_amount * calc_sheet_row.calc_row_exchange_rate, 2)
         total_sum += calc_sheet_row.total 
     return total_sum
 

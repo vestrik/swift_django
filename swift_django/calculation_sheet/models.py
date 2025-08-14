@@ -104,9 +104,6 @@ class CalculationSheetRow(models.Model):
     calc_row_count = models.PositiveIntegerField(blank=False)
     calc_row_single_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
     calc_row_exchange_rate = models.DecimalField(max_digits=10, decimal_places=2, default=1, blank=False)
-    calc_row_has_nds = models.CharField(max_length=1, choices=HAS_NDS_CHOICES, blank=False)
-    calc_row_ttl_nds_price = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
-    calc_row_ttl_price_without_nds = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
     calc_row_measure = models.CharField(max_length=50, blank=False, choices=MEASURE_CHOICES)
     calc_row_settlement_procedure = models.CharField(max_length=10, blank=False, choices=SETTLEMENT_PROCEDURE_CHOICES)
     

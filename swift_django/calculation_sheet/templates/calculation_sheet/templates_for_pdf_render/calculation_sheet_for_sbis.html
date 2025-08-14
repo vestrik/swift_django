@@ -53,13 +53,12 @@
                                 <tr class="calc-row">
                                     <th class="row-contragent-td">Клиент/Поставщик</th>
                                     <th class="row-service-td">Статья услуг</th>
+                                    <th class="row-settlement_procedure-td">Порядок расчета</th>
+                                    <th class="row-measure-td">Ед. измерения</th>
                                     <th class="row-currency-td">Валюта</th>
                                     <th class="row-count-td">Кол-во</th>
                                     <th class="row-single_amount-td">Цена за ед., в валюте</th>
                                     <th class="row-exchange_rate-td">Курс</th>
-                                    <th class="row-has_nds-td">НДС</th>
-                                    <th class="row-ttl_nds_price-td">Сумма НДС, в валюте</th>
-                                    <th class="row-ttl_price_without_nds-td">Сумма без НДС, в валюте</th>
                                     <th class="row-total_price-td">Сумма, руб.</th>
                                 </tr>
                             </thead>
@@ -68,13 +67,12 @@
                                 <tr class="calc-row">                    
                                     <td><input value="{{calc_sheet_debit_row.calc_row_contragent}}"></td>
                                     <td><input value="{{calc_sheet_debit_row.calc_row_service_name}}"></td>
+                                    <td><input value="{{calc_sheet_debit_row.calc_row_settlement_procedure}}"></td>
+                                    <td><input value="{{calc_sheet_debit_row.calc_row_measure}}"></td>
                                     <td><input value="{{calc_sheet_debit_row.calc_row_currency}}"></td>
                                     <td><input value="{{calc_sheet_debit_row.calc_row_count}}"></td>
                                     <td><input value="{{calc_sheet_debit_row.calc_row_single_amount}}"></td>
                                     <td><input value="{{calc_sheet_debit_row.calc_row_exchange_rate }}"></td>
-                                    <td><input value="{{calc_sheet_debit_row.calc_row_has_nds}}"></td>
-                                    <td><input value="{{calc_sheet_debit_row.calc_row_ttl_nds_price}}"></td>
-                                    <td><input value="{{calc_sheet_debit_row.calc_row_ttl_price_without_nds}}"></td>
                                     <td><input value="{{calc_sheet_debit_row.total}}"></td>
                                 </tr>
                             {% endfor %}
@@ -90,13 +88,12 @@
                                 <tr class="calc-row">
                                     <th class="row-contragent-td">Клиент/Поставщик</th>
                                     <th class="row-service-td">Статья услуг</th>
+                                    <th class="row-settlement_procedure-td">Порядок расчета</th>
+                                    <th class="row-measure-td">Ед. измерения</th>
                                     <th class="row-currency-td">Валюта</th>
                                     <th class="row-count-td">Кол-во</th>
                                     <th class="row-single_amount-td">Цена за ед., в валюте</th>
                                     <th class="row-exchange_rate-td">Курс</th>
-                                    <th class="row-has_nds-td">НДС</th>
-                                    <th class="row-ttl_nds_price-td">Сумма НДС, в валюте</th>
-                                    <th class="row-ttl_price_without_nds-td">Сумма без НДС, в валюте</th>
                                     <th class="row-total_price-td">Сумма, руб.</th>
                                 </tr>
                             </thead>
@@ -105,13 +102,12 @@
                                 <tr class="calc-row">                    
                                     <td><input value="{{calc_sheet_credit_row.calc_row_contragent}}"></td>
                                     <td><input value="{{calc_sheet_credit_row.calc_row_service_name}}"></td>
+                                    <td><input value="{{calc_sheet_credit_row.calc_row_settlement_procedure}}"></td>
+                                    <td><input value="{{calc_sheet_credit_row.calc_row_measure}}"></td>
                                     <td><input value="{{calc_sheet_credit_row.calc_row_currency}}"></td>
                                     <td><input value="{{calc_sheet_credit_row.calc_row_count}}"></td>
                                     <td><input value="{{calc_sheet_credit_row.calc_row_single_amount}}"></td>
                                     <td><input value="{{calc_sheet_credit_row.calc_row_exchange_rate }}"></td>
-                                    <td><input value="{{calc_sheet_credit_row.calc_row_has_nds}}"></td>
-                                    <td><input value="{{calc_sheet_credit_row.calc_row_ttl_nds_price}}"></td>
-                                    <td><input value="{{calc_sheet_credit_row.calc_row_ttl_price_without_nds}}"></td>
                                     <td><input value="{{calc_sheet_credit_row.total}}"></td>                        
                                 </tr>
                             {% endfor %}

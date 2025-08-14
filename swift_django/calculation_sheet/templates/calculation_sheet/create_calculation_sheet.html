@@ -60,9 +60,6 @@
                                 <th>{% translate 'Кол-во' %}</th>
                                 <th>{% translate 'Цена за ед., в валюте' %}</th>
                                 <th>{% translate 'Курс' %}</th>
-                                <th>{% translate 'НДС' %}</th>
-                                <th>{% translate 'Сумма НДС, в валюте' %}</th>
-                                <th>{% translate 'Сумма без НДС, в валюте' %}</th>
                                 <th>{% translate 'Сумма, руб.' %}</th>
                             </tr>
                         </thead>
@@ -78,9 +75,6 @@
                                 <td>{{debit_row_form.calc_row_count}}</td>
                                 <td>{{debit_row_form.calc_row_single_amount}}</td>
                                 <td>{{debit_row_form.calc_row_exchange_rate }}</td>
-                                <td>{{debit_row_form.calc_row_has_nds}}</td>
-                                <td>{{debit_row_form.calc_row_ttl_nds_price}}</td>
-                                <td>{{debit_row_form.calc_row_ttl_price_without_nds}}</td>
                                 <td><input type="number" name="debit-0-calc_row_ttl" id="id_debit-0-calc_row_ttl" class="autocalc" disabled></td>
                             </tr>
                         {% endfor %}
@@ -115,9 +109,6 @@
                                 <th>{% translate 'Кол-во' %}</th>
                                 <th>{% translate 'Цена за ед., в валюте' %}</th>
                                 <th>{% translate 'Курс' %}</th>
-                                <th>{% translate 'НДС' %}</th>
-                                <th>{% translate 'Сумма НДС, в валюте' %}</th>
-                                <th>{% translate 'Сумма без НДС, в валюте' %}</th>
                                 <th>{% translate 'Сумма, руб.' %}</th>
                             </tr>
                         </thead>
@@ -133,9 +124,6 @@
                                 <td>{{credit_row_form.calc_row_count}}</td>
                                 <td>{{credit_row_form.calc_row_single_amount}}</td>
                                 <td>{{credit_row_form.calc_row_exchange_rate }}</td>
-                                <td>{{credit_row_form.calc_row_has_nds}}</td>
-                                <td>{{credit_row_form.calc_row_ttl_nds_price}}</td>
-                                <td>{{credit_row_form.calc_row_ttl_price_without_nds}}</td>
                                 <td><input type="number" name="credit-0-calc_row_ttl" id="id_credit-0-calc_row_ttl" class="autocalc" disabled></td>
                             </tr>
                         {% endfor %}                
@@ -169,9 +157,9 @@
     
     function calculateRowSum(row) {
         var exchange_rate = parseFloat(row.find('input[id$="calc_row_exchange_rate"]').val()) || 0; 
-        var nds = parseFloat(row.find('input[id$="calc_row_ttl_nds_price"]').val()) || 0; 
-        var without_nds = parseFloat(row.find('input[id$="calc_row_ttl_price_without_nds"]').val()) || 0; 
-        var result = (nds + without_nds) * exchange_rate || 0;
+        var count = parseFloat(row.find('input[id$="calc_row_count"]').val()) || 0; 
+        var amount = parseFloat(row.find('input[id$="calc_row_single_amount"]').val()) || 0; 
+        var result = count * amount * exchange_rate || 0;
         row.find('input.autocalc').val(result.toFixed(2));
     }
 
@@ -372,7 +360,7 @@
         calculateTotalTable($('.credit_table'));
 
         // При вводе данных в эти инпуты выполняем пересчет
-        $('body').on('input', 'input[id$="calc_row_exchange_rate"], input[id$="calc_row_ttl_nds_price"], input[id$="calc_row_ttl_price_without_nds"]', function() {
+        $('body').on('input', 'input[id$="calc_row_exchange_rate"], input[id$="calc_row_count"], input[id$="calc_row_single_amount"]', function() {
             var row = $(this).closest('tr.calc-row');
             calculateRowSum(row);
             calculateTotalTable(row.closest('table')); // Пересчет таблицы после изменения строки

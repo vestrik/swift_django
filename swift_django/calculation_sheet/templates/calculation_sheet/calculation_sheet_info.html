@@ -69,9 +69,6 @@
                         <th>{% translate 'Кол-во' %}</th>
                         <th>{% translate 'Цена за ед., в валюте' %}</th>
                         <th>{% translate 'Курс' %}</th>
-                        <th>{% translate 'НДС' %}</th>
-                        <th>{% translate 'Сумма НДС, в валюте' %}</th>
-                        <th>{% translate 'Сумма без НДС, в валюте' %}</th>
                         <th>{% translate 'Сумма, руб.' %}</th>
                         
                     </tr>
@@ -87,9 +84,6 @@
                         <td><input disabled value="{{calc_sheet_debit_row.calc_row_count}}"></td>
                         <td><input disabled value="{{calc_sheet_debit_row.calc_row_single_amount}}"></td>
                         <td><input disabled value="{{calc_sheet_debit_row.calc_row_exchange_rate }}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_has_nds}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_ttl_nds_price}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_ttl_price_without_nds}}"></td>
                         <td><input disabled value="{{calc_sheet_debit_row.total}}"></td>
                     </tr>
                 {% endfor %}
@@ -111,9 +105,6 @@
                         <th>{% translate 'Кол-во' %}</th>
                         <th>{% translate 'Цена за ед., в валюте' %}</th>
                         <th>{% translate 'Курс' %}</th>
-                        <th>{% translate 'НДС' %}</th>
-                        <th>{% translate 'Сумма НДС, в валюте' %}</th>
-                        <th>{% translate 'Сумма без НДС, в валюте' %}</th>
                         <th>{% translate 'Сумма, руб.' %}</th>
                     </tr>
                 </thead>
@@ -128,9 +119,6 @@
                         <td><input disabled value="{{calc_sheet_credit_row.calc_row_count}}"></td>
                         <td><input disabled value="{{calc_sheet_credit_row.calc_row_single_amount}}"></td>
                         <td><input disabled value="{{calc_sheet_credit_row.calc_row_exchange_rate }}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_has_nds}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_ttl_nds_price}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_ttl_price_without_nds}}"></td>
                         <td><input disabled value="{{calc_sheet_credit_row.total}}"></td>                        
                     </tr>
                 {% endfor %}
