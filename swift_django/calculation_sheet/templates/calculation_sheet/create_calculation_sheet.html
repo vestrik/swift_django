@@ -67,8 +67,10 @@
                         {% for debit_row_form in debit_row_formset %}
                             <tr class="calc-row">
                                 <td class="calc_row_type_hidden">{{debit_row_form.calc_row_type}}</td>
-                                <td>{{debit_row_form.calc_row_contragent}}</td>
-                                <td>{{debit_row_form.calc_row_service_name}}</td>
+                                <td><input type="text" name="debit-0-calc_row_contragent_text" id="id_debit-0-calc_row_contragent_text" placeholder="Начните вводить для поиска"></td>
+                                <td class="calc_row_type_hidden">{{debit_row_form.calc_row_contragent}}</td>
+                                <td><input type="text" name="debit-0-calc_row_service_name_text" id="id_debit-0-calc_row_service_name_text" placeholder="Начните вводить для поиска"></td>
+                                <td class="calc_row_type_hidden">{{debit_row_form.calc_row_service_name}}</td>
                                 <td>{{debit_row_form.calc_row_settlement_procedure}}</td>
                                 <td>{{debit_row_form.calc_row_measure}}</td>                                
                                 <td>{{debit_row_form.calc_row_currency}}</td>
@@ -116,8 +118,10 @@
                         {% for credit_row_form in credit_row_formset %}
                             <tr class="calc-row">                                
                                 <td class="calc_row_type_hidden">{{credit_row_form.calc_row_type}}</td>
-                                <td>{{credit_row_form.calc_row_contragent}}</td>
-                                <td class="credit-dropdown-service">{{credit_row_form.calc_row_service_name}}</td>                                
+                                <td><input type="text" name="credit-0-calc_row_contragent_text" id="id_credit-0-calc_row_contragent_text" placeholder="Начните вводить для поиска"></td>
+                                <td class="calc_row_type_hidden">{{credit_row_form.calc_row_contragent}}</td>
+                                <td><input type="text" name="credit-0-calc_row_service_name_text" id="id_credit-0-calc_row_service_name_text" placeholder="Начните вводить для поиска"></td>
+                                <td class="calc_row_type_hidden">{{credit_row_form.calc_row_service_name}}</td>                     
                                 <td>{{credit_row_form.calc_row_settlement_procedure}}</td>                                
                                 <td>{{credit_row_form.calc_row_measure}}</td>
                                 <td>{{credit_row_form.calc_row_currency}}</td>
@@ -186,8 +190,45 @@
     }
 
     // Вынесли логику автокомплита в функцию
-    function initClientAutocomplete($input) {
-        $input.autocomplete({
+    function initServiceArticleAutocomplete($input_text) {
+        $input_text.autocomplete({
+            source: function(request, response) {
+                var term = request.term.toLowerCase();
+                var matches = [];
+                
+                // Ищем совпадения в articleServicesData
+                for (var i = 0; i < articleServicesData.length; i++) {
+                    var service_article = articleServicesData[i].service_article || "";
+                    var id = articleServicesData[i].id || "";
+                    
+                    // Проверяем совпадение в полях customer или inn
+                    if (service_article.toLowerCase().includes(term)) {
+                        matches.push({
+                            label: service_article,
+                            value: service_article,
+                            id: id
+                        });
+
+                        if (matches.length >= 20) break;
+                    }
+                }
+                response(matches);
+            },
+            minLength: 0,
+
+            select: function(event, ui) {
+                $(this).val(ui.item.value);
+                // В скрытое поле calc_row_contragent прописываем id выбранного контрагента
+                $(this).parent().parent().find("input[id$='calc_row_service_name']").val(ui.item.id);
+                return false;
+            }
+        }).focus(function() {
+            $(this).autocomplete("search", $(this).val());
+        });
+    }
+
+    function initClientAutocomplete($input_text) {
+        $input_text.autocomplete({
             source: function(request, response) {
                 var term = request.term.toLowerCase();
                 var matches = [];
@@ -197,13 +238,15 @@
                     var item = ClientData[i];
                     var customer = item.customer || "";
                     var inn = item.inn || "";
+                    var id = item.id || "";
                     
                     // Проверяем совпадение в полях customer или inn
                     if (customer.toLowerCase().includes(term) || 
                         inn.toLowerCase().includes(term)) {
                         matches.push({
                             label: customer + (inn ? " (" + inn + ")" : ""),
-                            value: customer
+                            value: customer,
+                            id: id
                         });
                         
                         // Ограничиваем результаты 10 элементами
@@ -216,6 +259,8 @@
 
             select: function(event, ui) {
                 $(this).val(ui.item.value);
+                // В скрытое поле calc_row_contragent прописываем id выбранного контрагента
+                $(this).parent().parent().find("input[id$='calc_row_contragent']").val(ui.item.id);
                 return false;
             }
         }).focus(function() {
@@ -242,10 +287,10 @@
     $('input[id$="row_form_add_more"]').click(function() {
         var type = this.id.split(' ')[0];
         if (type == 'credit') {
-            var calc_row_type_value = "{% translate 'Расход' %}";
+            var calc_row_type_value = "Расход";
         }
         if (type == 'debit') {
-            var calc_row_type_value = "{% translate 'Доход' %}";
+            var calc_row_type_value = "Доход";
         }
 
         // Клонируем БЕЗ событий/данных (чтобы не дублировать)
@@ -273,8 +318,8 @@
         newRow.find("input[id$='calc_row_exchange_rate']").val(1)
 
         // Инициализируем автокомплит на новом input
-        setAutocomplete(newRow.find("input[id$='calc_row_service_name']"), articleServicesData);
-        initClientAutocomplete($("input[id$='calc_row_contragent']"));
+        initServiceArticleAutocomplete(newRow.find("input[id$='calc_row_service_name_text']"));
+        initClientAutocomplete($("input[id$='calc_row_contragent_text']"));
         calculateRowSum(newRow);      
         calculateTotalTable(newRow.closest('table')); // Пересчет после добавления  
 
@@ -367,9 +412,9 @@
         });
 
         // Инициализируем на уже имеющихся полях
-        setAutocomplete($("input[id$='calc_row_service_name']"), articleServicesData);
+        initServiceArticleAutocomplete($("input[id$='calc_row_service_name_text']"));
         setAutocomplete($("input[id='id_order_no']"), Orders);
-        initClientAutocomplete($("input[id$='calc_row_contragent']"));
+        initClientAutocomplete($("input[id$='calc_row_contragent_text']"), $("input[id$='calc_row_contragent']"));
 
         // Делаем элементы обязательными для заполнения
         $("div[class='calc-sheet-table']").find('table').find('input').prop('required', true);

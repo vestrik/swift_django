@@ -18,6 +18,7 @@ from .filters import CalculationSheetFilter
 from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
 from .models import CalculationSheet, CalculationSheetRow
 from .sbis_worker import SbisWorker
+from .sol_worker import SolWorker, SolIncorrectAuthDataException
 
 logger = logging.getLogger(__name__)
 
@@ -40,17 +41,18 @@ def fetch_orders_from_db():
 def fetch_clients_and_services_data_from_db():
     """ Получаем из БД клиентов, их ИНН, а также статьи услуг """
     
-    clients_data = []
+    clients_data, article_services_data = [], []
     with connections['sol_cargo'].cursor() as cursor:
-        sql = ''' select customer_name, ifnull(tax_registration_number, '') from airflow_customer_info order by customer_name; '''
+        sql = ''' select original_id, customer_name, ifnull(tax_registration_number, '') from airflow_customer_info order by customer_name; '''
         cursor.execute(sql)
         rows = cursor.fetchall()
-        for customer, inn in rows:
-            clients_data.append({'customer': customer, 'inn': inn})
-        sql = ''' select service_acticle from airflow_service_article; '''
+        for id, customer, inn in rows:
+            clients_data.append({'id': id, 'customer': customer, 'inn': inn})
+        sql = ''' select original_id, service_acticle from airflow_service_article; '''
         cursor.execute(sql)
         rows = cursor.fetchall()
-        article_services_data = [row[0] for row in rows]
+        for id, service_article in rows:
+            article_services_data.append({'id': id, 'service_article': service_article})
     return clients_data, article_services_data
 
 def fetch_order_data_from_db(job_num):
@@ -75,6 +77,15 @@ def fetch_order_data_from_db(job_num):
                     "station_from": result[3],
                     "station_to": result[4]}
     return job_num_data
+
+def add_names_to_rows(clients_data, article_services_data, rows):
+    
+    clients_data_dict = {client_data['id']:client_data['customer'] for client_data in clients_data}
+    article_services_dict = {article_service['id']:article_service['service_article'] for article_service in article_services_data}    
+    for row in rows:
+        row.calc_row_contragent = clients_data_dict[int(row.calc_row_contragent)]
+        row.calc_row_service_name = article_services_dict[int(row.calc_row_service_name)]
+
 
 @login_required(login_url='accounts:login')
 def home(request):    
@@ -133,7 +144,6 @@ def create_calculation_sheet(request):
             else:
                 messages.add_message(request, messages.ERROR, err_text)
         else:
-            print(calc_sheet_form.errors)
             if 'Расчетный лист с таким Order no уже существует' in str(calc_sheet_form.errors):
                 err_text = f"Расчетный лист для заявки {str(calc_sheet_form['order_no'].value())} уже существует.{ERR_MESSAGE_ENDING}"
             messages.add_message(request, messages.ERROR, err_text)
@@ -207,6 +217,10 @@ def view_info(request, id):
         
     job_num_data = fetch_order_data_from_db(calc_sheet_info.order_no)
     margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
+    clients_data, article_services_data = fetch_clients_and_services_data_from_db()
+    add_names_to_rows(clients_data, article_services_data, calc_sheet_debit_rows)
+    add_names_to_rows(clients_data, article_services_data, calc_sheet_credit_rows)
+        
     context = {
         'calc_sheet_info': calc_sheet_info,
         'order_department': job_num_data['department'],
@@ -244,11 +258,12 @@ def edit_info(request, id):
         calc_sheet_info = CalculationSheet.objects.get(id=id)
         debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
         credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
+        clients_data, article_services_data = fetch_clients_and_services_data_from_db()            
         debit_row_formset = CalculationSheetRowDebitFormSet(prefix='debit', queryset=debit_data)
         credit_row_formset = CalculationSheetRowCreditFormSet(prefix='credit', queryset=credit_data)        
         order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-
-        clients_data, article_services_data = fetch_clients_and_services_data_from_db()
+   
+        
         context = {
             'calc_sheet_info': calc_sheet_info,
             'order_data': order_data,
@@ -299,7 +314,9 @@ def sbis_create_task(request, id):
         credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
         debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
         margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
-    
+        clients_data, article_services_data = fetch_clients_and_services_data_from_db()
+        add_names_to_rows(clients_data, article_services_data, debit_data)
+        add_names_to_rows(clients_data, article_services_data, credit_data)
         pdf = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)   
                
         sbis_href, sbis_doc_id = SbisWorker(request.user).create_approval_for_calc_list(calc_sheet_info.order_no, calc_sheet_info.calc_sheet_no, pdf)
@@ -312,4 +329,16 @@ def sbis_create_task(request, id):
     except Exception as e:
         logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
         messages.add_message(request, messages.ERROR, f"Не удалось создать задачу в Сбис.{ERR_MESSAGE_ENDING}")
+    return redirect('calculation_sheet:view_info', calc_sheet_info.id)
+
+@login_required(login_url='accounts:login')
+def sol_add_calc_sheet(request, id):
+    calc_sheet_info = CalculationSheet.objects.get(id=id)
+    debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
+    credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
+    try:
+        SolWorker(request.user).upload_calc_sheet(calc_sheet_info.order_no, debit_data, credit_data)
+    except SolIncorrectAuthDataException:
+        messages.add_message(request, messages.ERROR, 'Некорректные логин/пароль для СОЛа!')
+    
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)

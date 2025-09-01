@@ -14,6 +14,9 @@
                 {% else %}
                 <a href="{{ calc_sheet_info.sbis_href }}" class="base_button">{% translate 'Открыть задачу в Сбис' %}</a>
                 {% endif %}
+                {% if calc_sheet_info.sbis_approval_status == 'Задача согласована' %}
+                <a href="{% url 'calculation_sheet:sol_add_calc_sheet' calc_sheet_info.id %}" class="base_button">{% translate 'Загрузить расчетный лист в СОЛ' %}</a>
+                {% endif %}
             </div>
         </div>
     </div>
