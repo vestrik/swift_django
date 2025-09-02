@@ -64,11 +64,21 @@
                     {% if messages %}
                     <ul class="messages">
                         {% for message in messages %}
-                        <li {% if message.tags %} class="django-messages-li-{{ message.tags }}"{% endif %}>
-                            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} {% endif %}
-                            {{ message }}
-                        </li>
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                                <li class="django-messages-li-{{ message.tags }}">
+                                    {{ message }}
+                                </li>
+                            {% endif %}
                         {% endfor %}
+
+                        {% for message in messages %}
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                                <li class="django-messages-li-{{ message.tags }}">
+                                    {{ message }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
                     </ul>
                     {% endif %}
                 </div>

@@ -65,6 +65,16 @@ input::-webkit-inner-spin-button {
   text-align: center;
 }
 
+.django-messages-li-success {
+  margin: 8px;
+  padding: 8px;
+  list-style: none;
+  background-color: #23fa0fb9;
+  color: white;
+  box-shadow: 12px 12px 12px #00000033;
+  text-align: center;
+}
+
 /* ---------------- Навигационное меню ---------------- */
 .navbar {
   background: white;
