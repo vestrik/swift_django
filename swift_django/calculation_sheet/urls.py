@@ -12,4 +12,5 @@ urlpatterns = [
     path('<int:id>/edit/', views.edit_info, name='edit'),
     path('<int:id>/sbis_create_task/', views.sbis_create_task, name='sbis_create_task'),
     path('<int:id>/sol_add_calc_sheet/', views.sol_add_calc_sheet, name='sol_add_calc_sheet'),
+    path('<int:id>/download_pdf/', views.download_pdf, name='download_pdf'),
 ]

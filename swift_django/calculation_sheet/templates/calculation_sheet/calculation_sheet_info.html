@@ -17,6 +17,8 @@
                 {% if calc_sheet_info.sbis_approval_status == 'Задача согласована' %}
                 <a href="{% url 'calculation_sheet:sol_add_calc_sheet' calc_sheet_info.id %}" class="base_button">{% translate 'Загрузить расчетный лист в СОЛ' %}</a>
                 {% endif %}
+                <a href="{% url 'calculation_sheet:download_pdf' calc_sheet_info.id %}" class="base_button">{% translate 'Скачать ПДФ' %}</a>
+                
             </div>
         </div>
     </div>

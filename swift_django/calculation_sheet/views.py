@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.forms import  inlineformset_factory, modelformset_factory
 from django.db import connections
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from decimal import InvalidOperation
 from django.core.exceptions import ObjectDoesNotExist
@@ -300,7 +300,29 @@ def make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, mar
     byte_ = HTML(string=html).write_pdf(presentational_hints=True, stylesheets=[CSS(string=css_str)])
     # Переводим в base64
     bs = base64.b64encode(byte_).decode('ascii')              
-    return bs
+    return bs, byte_
+
+def download_pdf(request, id):
+    try: 
+        calc_sheet_info = CalculationSheet.objects.get(id=id)
+        order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
+        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
+        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
+        debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
+        margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
+        clients_data, article_services_data = fetch_clients_and_services_data_from_db()
+        add_names_to_rows(clients_data, article_services_data, debit_data)
+        add_names_to_rows(clients_data, article_services_data, credit_data)
+        _, pdf_bytes = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)
+
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename={calc_sheet_info.order_no}.pdf'
+        return response
+    except Exception as e:
+        logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
+        messages.add_message(request, messages.ERROR, f"Не удалось скачать ПДФ.{ERR_MESSAGE_ENDING}")
+        return redirect('calculation_sheet:view_info', calc_sheet_info.id)
+
 
 @login_required(login_url='accounts:login')
 def sbis_create_task(request, id):
@@ -317,7 +339,7 @@ def sbis_create_task(request, id):
         clients_data, article_services_data = fetch_clients_and_services_data_from_db()
         add_names_to_rows(clients_data, article_services_data, debit_data)
         add_names_to_rows(clients_data, article_services_data, credit_data)
-        pdf = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)   
+        pdf, _ = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)   
                
         sbis_href, sbis_doc_id = SbisWorker(request.user).create_approval_for_calc_list(calc_sheet_info.order_no, calc_sheet_info.calc_sheet_no, pdf)
 
