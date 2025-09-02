@@ -2,7 +2,10 @@ import logging
 import json
 import requests
 import hashlib
+from django.contrib import messages
 from accounts.models import UserProfile
+
+ERR_MESSAGE_ENDING = ' Обратитесь на почту m.golovanov@uk-swift.ru.'
 
 class SolIncorrectAuthDataException(Exception):
     pass
@@ -39,7 +42,7 @@ class SolWorker:
                 raise SolIncorrectAuthDataException()
         self.headers['Authorization'] = f"Bearer {token}"
         
-    def upload_calc_sheet(self, order_no, debit_data, credit_data):
+    def upload_calc_sheet(self, request, order_no, debit_data, credit_data):
         self.__fetch_sol_auth_data_from_db()
         self.auth()
         json_data = []
@@ -71,9 +74,11 @@ class SolWorker:
                 "recCustomerName": None,
                 "remark": "",
                 "createdBy": self.login 
-            })
-        print(*json_data, sep='\n')
+            })        
         
         response = requests.post('http://101.32.207.53:8089/base/api/saleshipfee/saveBatch', data=json.dumps(json_data), headers=self.headers)
         if response.status_code != 200:            
-            self.logger.error(f'Ошибка при загрузке расчетного листа в СОЛ по заявке {order_no}: {response.json(), }')
+            self.logger.error(f'Ошибка при загрузке расчетного листа в СОЛ по заявке {order_no}: {response.json()}')
+            messages.add_message(request, messages.ERROR, f'Ошибка при загрузке расчетного листа в СОЛ по заявке {order_no}!{ERR_MESSAGE_ENDING}')
+        else:
+            messages.add_message(request, messages.SUCCESS, 'Успешно загрузили расчетный лист в СОЛ!')

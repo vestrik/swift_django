@@ -359,8 +359,8 @@ def sol_add_calc_sheet(request, id):
     debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
     credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
     try:
-        SolWorker(request.user).upload_calc_sheet(calc_sheet_info.order_no, debit_data, credit_data)
+        SolWorker(request.user).upload_calc_sheet(request, calc_sheet_info.order_no, debit_data, credit_data)
     except SolIncorrectAuthDataException:
-        messages.add_message(request, messages.ERROR, 'Некорректные логин/пароль для СОЛа!')
+        messages.add_message(request, messages.ERROR, 'Некорректные логин/пароль для СОЛа! Укажите верные в профиле.')
     
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)
