@@ -82,3 +82,4 @@ class SolWorker:
             messages.add_message(request, messages.ERROR, f'Ошибка при загрузке расчетного листа в СОЛ по заявке {order_no}!{ERR_MESSAGE_ENDING}')
         else:
             messages.add_message(request, messages.SUCCESS, 'Успешно загрузили расчетный лист в СОЛ!')
+            return True

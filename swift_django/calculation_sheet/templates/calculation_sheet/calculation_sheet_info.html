@@ -8,6 +8,12 @@
         <div class="div_horizontal">
             <p class="calculation-sheet-card-name">{% translate 'Статус заявки в Сбисе' %}: </p>
             <p class="calculation-sheet-card-name" id="order-sbis-status">{{calc_sheet_info.sbis_approval_status}}</p>
+        </div>
+        <div class="div_horizontal">
+            <p class="calculation-sheet-card-name">{% translate 'Загружено в СОЛ' %}: </p>
+            <p class="calculation-sheet-card-name" id="order-sol-status">{{calc_sheet_info.uploaded_at_sol}}</p>
+        </div>
+        <div class="div_horizontal">
             <div class="sbis-actions-buttons">
                 {% if not calc_sheet_info.sbis_href %}
                 <a href="{% url 'calculation_sheet:sbis_create_task' calc_sheet_info.id %}" class="base_button">{% translate 'Создать задачу в Сбис' %}</a>
@@ -150,7 +156,15 @@
             $('#order-sbis-status').css('color', '#00ac0e')
         }
         if (sbis_status == "{% translate 'Задача не согласована' %}") {
-            $('#order-sbis-status').css('color', '#ac0000')
+            $('#order-sbis-status').css('color', '#ee0000ff')
+        }
+
+        var sol_status = $('#order-sol-status').text()
+        if (sol_status == "{% translate 'Нет' %}") {
+            $('#order-sol-status').css('color', '#ee0000ff')
+        }
+        if (sol_status == "{% translate 'Да' %}") {
+            $('#order-sol-status').css('color', '#00ac0e')
         }
     })
 </script>
