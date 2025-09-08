@@ -344,7 +344,7 @@ def sbis_create_task(request, id):
         add_names_to_rows(clients_data, article_services_data, credit_data)
         pdf, _ = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)   
                
-        sbis_href, sbis_doc_id = SbisWorker(request.user).create_approval_for_calc_list(calc_sheet_info.order_no, calc_sheet_info.calc_sheet_no, pdf)
+        sbis_href, sbis_doc_id = SbisWorker(request.user).create_approval_for_calc_list(calc_sheet_info.order_no, pdf)
 
         calc_sheet_info.sbis_href = sbis_href
         calc_sheet_info.sbis_doc_id = sbis_doc_id

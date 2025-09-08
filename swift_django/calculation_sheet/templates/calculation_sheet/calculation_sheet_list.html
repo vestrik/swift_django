@@ -9,9 +9,6 @@
             <p>{% translate 'Номер заявки' %}</p>
             {{ calc_sheet_filter.form.order_no }}
 
-            <p>{% translate 'Расчетный лист' %}</p>
-            {{ calc_sheet_filter.form.calc_sheet_no }}
-
             <p>{% translate 'Статус заявки в Сбисе' %}</p>
             {{ calc_sheet_filter.form.sbis_approval_status }}
         </div>
@@ -24,7 +21,7 @@
     {% for calc_sheet in calc_sheets %}    
         <div class="card">
             <a href="{% url 'calculation_sheet:view_info' calc_sheet.id %}">
-                {% translate 'Расчетный лист' %} {{ calc_sheet.calc_sheet_no}} {% translate 'по заявке' %} {{ calc_sheet.order_no}} {{calc_sheet.sbis_approval_status}}
+                {% translate 'Расчетный лист' %} {% translate 'по заявке' %} {{ calc_sheet.order_no}} {{calc_sheet.sbis_approval_status}}
             </a>
         </div>        
     {% endfor %}

@@ -27,5 +27,5 @@ class CalculationSheetForm(ModelForm):
     
     class Meta:
         model = CalculationSheet
-        fields = ['order_no', 'calc_sheet_no']            
+        fields = ['order_no',]            
         

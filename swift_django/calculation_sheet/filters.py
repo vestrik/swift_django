@@ -1,5 +1,4 @@
 import django_filters
-from django_filters import CharFilter
 
 from .models import CalculationSheet
 
@@ -12,8 +11,7 @@ SBIS_APPROVAL_STATUS_CHOICES = {
 }
 
 class CalculationSheetFilter(django_filters.FilterSet):
-    calc_sheet_no = CharFilter(field_name='calc_sheet_no', lookup_expr='icontains')
     sbis_approval_status = django_filters.ChoiceFilter(choices=SBIS_APPROVAL_STATUS_CHOICES)
     class Meta:
         model = CalculationSheet
-        fields = ('order_no', 'calc_sheet_no', 'sbis_approval_status')
+        fields = ('order_no', 'sbis_approval_status')

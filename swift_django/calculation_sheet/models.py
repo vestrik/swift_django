@@ -74,7 +74,6 @@ class CalculationSheet(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     slug = models.SlugField(max_length=200, editable=False)
     order_no = models.CharField(max_length=100, blank=False, null=True, unique=True)
-    calc_sheet_no = models.CharField(max_length=100, blank=False, null=True)
     sbis_href = models.CharField(max_length=512, blank=True, null=True)
     sbis_doc_id = models.CharField(max_length=256, blank=True, null=True)
     sbis_approval_status = models.CharField(max_length=128, blank=False, null=False, default='Нет задачи в Сбис на согласование')
@@ -84,7 +83,7 @@ class CalculationSheet(models.Model):
         return self.order_no
     
     def save(self, *args, **kwargs):
-        self.slug = slugify(f'{self.order_no}_{self.calc_sheet_no}', allow_unicode=True)
+        self.slug = slugify(f'{self.order_no}', allow_unicode=True)
         super(CalculationSheet, self).save(*args, **kwargs)
         
     class Meta:

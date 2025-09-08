@@ -58,7 +58,7 @@ class SbisWorker:
             self.logger.error(f"Не удалось получить ФИО пользователя: {response.status_code}, {response.json()['error']['message']}")
             response.raise_for_status()
             
-    def create_approval_for_calc_list(self, order_no, calc_sheet_no, pdf):
+    def create_approval_for_calc_list(self, order_no, pdf):
         
         self.auth()
         self.get_user_fio()
@@ -91,7 +91,7 @@ class SbisWorker:
                     "Вложение": [
                         {
                             "Файл": {    
-                                    "Имя": f"{order_no}_{calc_sheet_no}.pdf",                        
+                                    "Имя": f"{order_no}.pdf",                        
                                     "ДвоичныеДанные": f'{pdf}'
                                 }
                         }
