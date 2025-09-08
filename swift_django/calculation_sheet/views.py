@@ -142,10 +142,12 @@ def create_calculation_sheet(request):
                 process_rows_formset(request, debit_row_formset)
                 process_rows_formset(request, credit_row_formset)
             else:
+                logger.error(f"Ошибка при создании р/л для заявки {str(calc_sheet_form['order_no'].value())}: debit {debit_row_formset.errors}, credit {credit_row_formset.errors}")
                 messages.add_message(request, messages.ERROR, err_text)
         else:
             if 'Расчетный лист с таким Order no уже существует' in str(calc_sheet_form.errors):
                 err_text = f"Расчетный лист для заявки {str(calc_sheet_form['order_no'].value())} уже существует.{ERR_MESSAGE_ENDING}"
+                logger.error(err_text)
             messages.add_message(request, messages.ERROR, err_text)
         return redirect('calculation_sheet:home')   
     
