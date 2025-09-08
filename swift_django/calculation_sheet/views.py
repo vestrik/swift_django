@@ -5,6 +5,7 @@ import traceback
 from weasyprint import HTML, CSS
 from django.utils import timezone
 from django.contrib import messages
+from django.utils.translation import gettext_lazy as _
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.forms import  inlineformset_factory, modelformset_factory
@@ -22,7 +23,6 @@ from .sol_worker import SolWorker, SolIncorrectAuthDataException
 
 logger = logging.getLogger(__name__)
 
-ERR_MESSAGE_ENDING = ' Обратитесь на почту m.golovanov@uk-swift.ru.'
 
 def fetch_orders_from_db():
     """ Получаем список заявок из БД """
@@ -122,7 +122,7 @@ def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=Fal
 def create_calculation_sheet(request):
     """ Создаем расчетный лист """
     
-    err_text = f"Ошибка при создании расчетного листа.{ERR_MESSAGE_ENDING}"
+    err_text = f"Ошибка при создании расчетного листа. Обратитесь на почту m.golovanov@uk-swift.ru."
     
     # Formset
     CalculationSheetRowDebitFormSet = inlineformset_factory(parent_model=CalculationSheet, model=CalculationSheetRow, 
@@ -142,11 +142,12 @@ def create_calculation_sheet(request):
                 process_rows_formset(request, debit_row_formset)
                 process_rows_formset(request, credit_row_formset)
             else:
+                
                 logger.error(f"Ошибка при создании р/л для заявки {str(calc_sheet_form['order_no'].value())}: debit {debit_row_formset.errors}, credit {credit_row_formset.errors}")
-                messages.add_message(request, messages.ERROR, err_text)
+                messages.add_message(request, messages.ERROR, _("Ошибка при создании р/л для заявки {order_no}").format(order_no=str(calc_sheet_form['order_no'].value())))
         else:
             if 'Расчетный лист с таким Order no уже существует' in str(calc_sheet_form.errors):
-                err_text = f"Расчетный лист для заявки {str(calc_sheet_form['order_no'].value())} уже существует.{ERR_MESSAGE_ENDING}"
+                err_text = _("Расчетный лист для заявки {order_no} уже существует. Обратитесь на почту m.golovanov@uk-swift.ru.").format(order_no=str(calc_sheet_form['order_no'].value()))
                 logger.error(err_text)
             messages.add_message(request, messages.ERROR, err_text)
         return redirect('calculation_sheet:home')   
@@ -322,7 +323,7 @@ def download_pdf(request, id):
         return response
     except Exception as e:
         logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
-        messages.add_message(request, messages.ERROR, f"Не удалось скачать ПДФ.{ERR_MESSAGE_ENDING}")
+        messages.add_message(request, messages.ERROR, _("Не удалось скачать ПДФ. Обратитесь на почту m.golovanov@uk-swift.ru."))
         return redirect('calculation_sheet:view_info', calc_sheet_info.id)
 
 
@@ -352,7 +353,7 @@ def sbis_create_task(request, id):
         
     except Exception as e:
         logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
-        messages.add_message(request, messages.ERROR, f"Не удалось создать задачу в Сбис.{ERR_MESSAGE_ENDING}")
+        messages.add_message(request, messages.ERROR, _("Не удалось создать задачу в Сбис. Обратитесь на почту m.golovanov@uk-swift.ru."))
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)
 
 @login_required(login_url='accounts:login')
@@ -366,6 +367,5 @@ def sol_add_calc_sheet(request, id):
             calc_sheet_info.uploaded_at_sol = 'Да'
             calc_sheet_info.save()
     except SolIncorrectAuthDataException:
-        messages.add_message(request, messages.ERROR, 'Некорректные логин/пароль для СОЛа! Укажите верные в профиле.')
-    
+        messages.add_message(request, messages.ERROR, _('Некорректные логин/пароль для СОЛа! Укажите верные в профиле.'))    
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)

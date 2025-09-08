@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-10 11:52+0300\n"
+"POT-Creation-Date: 2025-09-08 10:23+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: accounts/templates/accounts/login.html:9 templates/base_layout.html:50
+#: accounts/templates/accounts/login.html:9 templates/base_layout.html:53
 msgid "Войти"
 msgstr "Log in"
 
+#: accounts/templates/accounts/profile.html:9
+msgid "Логин от Сбис:"
+msgstr "Sbis login:"
+
+#: accounts/templates/accounts/profile.html:13
+msgid "Пароль от Сбиса:"
+msgstr "Sbis password:"
+
+#: accounts/templates/accounts/profile.html:17
+msgid "Логин от СОЛа:"
+msgstr "SOL login"
+
+#: accounts/templates/accounts/profile.html:21
+msgid "Пароль от СОЛа:"
+msgstr "SOL password"
+
+#: accounts/templates/accounts/profile.html:24
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:156
+msgid "Сохранить"
+msgstr "Save"
+
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:9
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:12
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:21
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:24
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:32
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:35
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:11
 msgid "Заявка"
 msgstr "Order №"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:14
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:26
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:37
 msgid "Номер расчетного листа"
 msgstr "Calculation sheet №"
 
@@ -41,209 +62,176 @@ msgid "Данные из СОЛа автоматически загрузятс�
 msgstr "The Data from SOL will be loaded automatically after selecting the order"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:22
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:34
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:45
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:24
 msgid "Направление"
 msgstr "Department"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:23
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:35
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:46
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:25
 msgid "Станция, от"
 msgstr "Station from"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:24
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:36
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:47
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:26
 msgid "Станция, до"
 msgstr "Station to"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:27
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:39
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:50
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:29
 msgid "КТК"
 msgstr "Cont."
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:28
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:40
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:51
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:30
 msgid "Клиент"
 msgstr "Client"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:36
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:49
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:266
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:48
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:59
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:70
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:38
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:49
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:260
 msgid "Доход"
 msgstr "Debit"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:38
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:107
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:263
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:50
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:101
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:103
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:61
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:106
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:40
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:104
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:257
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:100
 msgid "Расход"
 msgstr "Credit"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:40
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:52
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:63
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:42
 msgid "Маржа"
 msgstr "Margin"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:42
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:54
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:65
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:44
+#, fuzzy, python-format
+#| msgid "%% маржи"
 msgid "%% маржи"
 msgstr "% of margin"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:55
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:113
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:64
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:106
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:109
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:75
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:111
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:55
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:110
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:106
 msgid "Клиент/Поставщик"
 msgstr "Client/Supplier"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:56
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:114
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:65
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:107
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:110
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:76
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:112
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:56
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:111
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:107
 msgid "Статья услуг"
 msgstr "Article of services"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:57
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:115
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:66
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:108
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:111
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:77
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:113
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:57
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:112
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:108
 msgid "Порядок расчета"
 msgstr "Settlement procedure"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:58
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:116
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:67
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:109
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:112
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:78
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:114
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:58
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:113
-msgid "Unit of measurement"
-msgstr ""
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:109
+msgid "Ед. измерения"
+msgstr "Unit of measure"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:59
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:117
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:68
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:110
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:113
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:79
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:115
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:59
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:114
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:110
 msgid "Валюта"
 msgstr "Currency"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:60
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:118
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:69
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:111
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:114
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:80
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:116
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:60
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:115
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:111
 msgid "Кол-во"
 msgstr "Quantity"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:61
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:119
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:70
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:112
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:115
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:81
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:117
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:61
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:116
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:112
 msgid "Цена за ед., в валюте"
 msgstr "Price per unit, in currency"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:62
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:120
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:71
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:113
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:116
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:82
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:118
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:62
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:117
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:113
 msgid "Курс"
 msgstr "Exchange rate"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:63
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:121
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:72
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:114
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:63
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:118
-msgid "НДС"
-msgstr "VAT"
-
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:64
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:122
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:73
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:115
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:64
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:119
-msgid "Сумма НДС, в валюте"
-msgstr "VAT amount, in currency"
-
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:65
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:123
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:74
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:116
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:65
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:120
-msgid "Сумма без НДС, в валюте"
-msgstr "Amount without VAT, in currency"
-
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:66
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:124
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:117
 msgid "Сумма, руб"
 msgstr "Total amount, RUB"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:67
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:125
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:64
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:118
 msgid "Удалить"
 msgstr "Delete"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:94
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:152
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:91
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:146
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:90
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:144
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:87
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:138
 msgid "Добавить новую строку"
 msgstr "Add new row"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:95
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:153
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:92
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:147
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:91
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:145
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:88
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:139
 msgid "Удалить новую строку"
 msgstr "Remove new row"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:98
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:156
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:95
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:150
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:94
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:148
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:91
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:142
 msgid "Итого"
 msgstr "Total"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:100
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:158
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:97
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:152
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:96
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:150
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:93
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:144
 msgid "руб."
 msgstr "RUB."
-
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_edit.html:164
-msgid "Сохранить"
-msgstr "Save"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:9
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_list.html:15
@@ -251,48 +239,68 @@ msgid "Статус заявки в Сбисе"
 msgstr "Order status in Sbis"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:13
+msgid "Загружено в СОЛ"
+msgstr "Uploaded to SOL"
+
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:19
 msgid "Создать задачу в Сбис"
 msgstr "Create task in Sbis"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:15
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:21
 msgid "Открыть задачу в Сбис"
 msgstr "Open task in Sbis"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:31
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:24
+msgid "Загрузить расчетный лист в СОЛ"
+msgstr "Upload the calculation sheet to the SOL"
+
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:26
+msgid "Скачать ПДФ"
+msgstr "Download PDF"
+
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:42
 msgid "Данные из СОЛа"
 msgstr "Data from SOL"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:46
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:57
 #: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:36
 msgid "Итог"
 msgstr "Total"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:75
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:117
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:66
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:121
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:83
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:119
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:63
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:114
 msgid "Сумма, руб."
 msgstr "Amount, RUB."
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:141
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:140
 msgid "Редактировать"
 msgstr "Edit"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:150
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:149
 msgid "Создана задача в Сбис (черновик)"
-msgstr "Create task in Sbis"
+msgstr "A task has been created in Sbis (draft)"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:153
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:152
 msgid "Задача в процессе согласования"
 msgstr "A task in the approval process"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:156
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:155
 msgid "Задача согласована"
 msgstr "Task approved"
 
-#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:159
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:158
 msgid "Задача не согласована"
 msgstr "Task is not approved"
+
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:163
+msgid "Нет"
+msgstr "No"
+
+#: calculation_sheet/templates/calculation_sheet/calculation_sheet_info.html:166
+msgid "Да"
+msgstr "Yes"
 
 #: calculation_sheet/templates/calculation_sheet/calculation_sheet_list.html:9
 msgid "Номер заявки"
@@ -323,9 +331,31 @@ msgstr "Choose order from drop-down"
 msgid "Укажите номер расчетного листа"
 msgstr "Enter calculation sheet number"
 
-#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:158
+#: calculation_sheet/templates/calculation_sheet/create_calculation_sheet.html:150
 msgid "Создать"
 msgstr "Create"
+
+#: calculation_sheet/views.py:147
+#, python-brace-format
+msgid "Ошибка при создании р/л для заявки {order_no}"
+msgstr "Error when creating calculation sheet for order {order_no}"
+
+#: calculation_sheet/views.py:150
+#, python-brace-format
+msgid "Расчетный лист для заявки {order_no} уже существует. Обратитесь на почту m.golovanov@uk-swift.ru."
+msgstr "Calculation sheet for order {order_no} is already exists. Concact m.golovanov@uk-swift.ru"
+
+#: calculation_sheet/views.py:326
+msgid "Не удалось скачать ПДФ. Обратитесь на почту m.golovanov@uk-swift.ru."
+msgstr "Cant download PDF. Contact m.golovanov@uk-swift.ru."
+
+#: calculation_sheet/views.py:356
+msgid "Не удалось создать задачу в Сбис. Обратитесь на почту m.golovanov@uk-swift.ru."
+msgstr "Cant create task in Sbis. Contact m.golovanov@uk-swift.ru."
+
+#: calculation_sheet/views.py:370
+msgid "Некорректные логин/пароль для СОЛа! Укажите верные в профиле."
+msgstr "Wrong login/password for Sol! Set correct login/password in your profile."
 
 #: templates/base_layout.html:27
 msgid "Сменить язык"
@@ -335,10 +365,20 @@ msgstr "Change Language"
 msgid "Расчетные листы"
 msgstr "Calculation sheets"
 
-#: templates/base_layout.html:39
+#: templates/base_layout.html:37
 msgid "Выйти"
 msgstr "Log out"
 
-#: templates/base_layout.html:45
+#: templates/base_layout.html:42
+msgid "Профиль"
+msgstr "Profile"
+
+#: templates/base_layout.html:48
 msgid "Вы вошли как"
 msgstr "You're logged in as"
+
+#~ msgid "Сумма НДС, в валюте"
+#~ msgstr "VAT amount, in currency"
+
+#~ msgid "Сумма без НДС, в валюте"
+#~ msgstr "Amount without VAT, in currency"
