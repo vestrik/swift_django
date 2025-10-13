@@ -105,7 +105,26 @@ class SbisWorker:
         if response.status_code == 200:
             sbis_href = response.json()['result']['СсылкаДляНашаОрганизация']
             sbis_doc_id = response.json()['result']['Идентификатор']
-            return sbis_href, sbis_doc_id
+            
+            data = {
+                "jsonrpc": "2.0",
+                "method": "СБИС.ВыполнитьДействие",
+                "params": {
+                    "Документ": {
+                        "Идентификатор": sbis_doc_id,
+                        "Этап": {
+                            "Название": "Выполнение"
+                        }
+                    }
+                },
+                "id": 2
+            }
+            response = requests.post(url=self.url, data=json.dumps(data), headers=self.headers, timeout=60)
+            if response.status_code == 200:           
+                return sbis_href, sbis_doc_id
+            else:
+                self.logger.error(f"Не удалось создать задачу на согласование расчетного листа: {response.status_code}, {response.json()['error']['message']}")
+                response.raise_for_status()
         else:
             self.logger.error(f"Не удалось создать задачу на согласование расчетного листа: {response.status_code}, {response.json()['error']['message']}")
             response.raise_for_status()
