@@ -58,7 +58,13 @@ def fetch_clients_and_services_data_from_db():
 def fetch_order_data_from_db(job_num):
     """ По номеру заявки получаем ее данные из БД """
     
-    job_num_data = {}
+    job_num_data = {
+        "department": "",
+        "box": "",
+        "client": "",
+        "station_from": "",
+        "station_to": ""
+    }
     if job_num is not None:
         sql = f'''
             select 
@@ -71,11 +77,14 @@ def fetch_order_data_from_db(job_num):
         with connections['sol_cargo'].cursor() as cursor:
             cursor.execute(sql)
             result = cursor.fetchone()
-        job_num_data = {"department": result[0],
-                    "box": result[1],
-                    "client": result[2],
-                    "station_from": result[3],
-                    "station_to": result[4]}
+        if result is not None:
+            job_num_data = {
+                "department": result[0],
+                "box": result[1],
+                "client": result[2],
+                "station_from": result[3],
+                "station_to": result[4]
+            }
     return job_num_data
 
 def add_names_to_rows(clients_data, article_services_data, rows):
@@ -348,7 +357,7 @@ def sbis_create_task(request, id):
 
         calc_sheet_info.sbis_href = sbis_href
         calc_sheet_info.sbis_doc_id = sbis_doc_id
-        calc_sheet_info.sbis_approval_status = 'cоздана задача в Сбис (черновик)'
+        calc_sheet_info.sbis_approval_status = 'Задача в процессе согласования'
         calc_sheet_info.save()
         
     except Exception as e:
