@@ -106,6 +106,9 @@ class CalculationSheetRow(models.Model):
     calc_row_exchange_rate = models.DecimalField(max_digits=10, decimal_places=2, default=1, blank=False)
     calc_row_measure = models.CharField(max_length=50, blank=False, choices=MEASURE_CHOICES)
     calc_row_settlement_procedure = models.CharField(max_length=10, blank=False, choices=SETTLEMENT_PROCEDURE_CHOICES)
+    calc_row_departure_station = models.CharField(max_length=500, blank=False)
+    calc_row_destination_station = models.CharField(max_length=500, blank=False)
+    calc_row_original_id = models.BigIntegerField()
     
     def __str__(self):
         return f'{self.calculation_sheet} {CalculationSheet.objects.get(id=self.calculation_sheet_id).calc_sheet_no} {self.calc_row_type} {self.calc_row_contragent}'
