@@ -70,30 +70,34 @@
             <table class="debit_table">
                 <thead>
                     <tr class="calc-row">
-                        <th>{% translate 'Клиент/Поставщик' %}</th>
-                        <th>{% translate 'Статья услуг' %}</th>
-                        <th>{% translate 'Порядок расчета' %}</th>
-                        <th>{% translate 'Ед. измерения' %}</th>
-                        <th>{% translate 'Валюта' %}</th>
-                        <th>{% translate 'Кол-во' %}</th>
-                        <th>{% translate 'Цена за ед., в валюте' %}</th>
-                        <th>{% translate 'Курс' %}</th>
-                        <th>{% translate 'Сумма, руб.' %}</th>
+                        <th class="calc_row_contragent">{% translate 'Клиент/Поставщик' %}</th>
+                        <th class="calc_row_service_name">{% translate 'Статья услуг' %}</th>
+                        <th class="calc_row_settlement_procedure">{% translate 'Порядок расчета' %}</th>
+                        <th class="calc_row_measure">{% translate 'Ед. измерения' %}</th>
+                        <th class="calc_row_departure_station">{% translate 'Место отправления' %}</th>
+                        <th class="calc_row_destination_station">{% translate 'Место назначения' %}</th>
+                        <th class="calc_row_currency">{% translate 'Валюта' %}</th>
+                        <th class="calc_row_count">{% translate 'Кол-во' %}</th>
+                        <th class="calc_row_single_amount">{% translate 'Цена за ед., в валюте' %}</th>
+                        <th class="calc_row_exchange_rate">{% translate 'Курс' %}</th>
+                        <th class="calc_row_ttl">{% translate 'Сумма, руб.' %}</th>  
                         
                     </tr>
                 </thead>
                 <tbody>
                 {% for calc_sheet_debit_row in calc_sheet_debit_rows %}
                     <tr class="calc-row">                    
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_contragent}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_service_name}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_settlement_procedure}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_measure}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_currency}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_count}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_single_amount}}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.calc_row_exchange_rate }}"></td>
-                        <td><input disabled value="{{calc_sheet_debit_row.total}}"></td>
+                        <td class="calc_row_contragent"><input disabled value="{{calc_sheet_debit_row.calc_row_contragent}}"></td>
+                        <td class="calc_row_service_name"><input disabled value="{{calc_sheet_debit_row.calc_row_service_name}}"></td>
+                        <td class="calc_row_settlement_procedure"><input disabled value="{{calc_sheet_debit_row.calc_row_settlement_procedure}}"></td>
+                        <td class="calc_row_measure"><input disabled value="{{calc_sheet_debit_row.calc_row_measure}}"></td>
+                        <td class="calc_row_departure_station"><input disabled value="{{calc_sheet_debit_row.calc_row_departure_station}}"></td>
+                        <td class="calc_row_destination_station"><input disabled value="{{calc_sheet_debit_row.calc_row_destination_station}}"></td>
+                        <td class="calc_row_currency"><input disabled value="{{calc_sheet_debit_row.calc_row_currency}}"></td>
+                        <td class="calc_row_count"><input disabled value="{{calc_sheet_debit_row.calc_row_count}}"></td>
+                        <td class="calc_row_single_amount"><input disabled value="{{calc_sheet_debit_row.calc_row_single_amount}}"></td>
+                        <td class="calc_row_exchange_rate"><input disabled value="{{calc_sheet_debit_row.calc_row_exchange_rate }}"></td>
+                        <td class="calc_row_ttl"><input disabled value="{{calc_sheet_debit_row.total}}"></td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -106,29 +110,33 @@
             <table class="credit_table">
                 <thead>
                     <tr class="calc-row">
-                        <th>{% translate 'Клиент/Поставщик' %}</th>
-                        <th>{% translate 'Статья услуг' %}</th>
-                        <th>{% translate 'Порядок расчета' %}</th>
-                        <th>{% translate 'Ед. измерения' %}</th>
-                        <th>{% translate 'Валюта' %}</th>
-                        <th>{% translate 'Кол-во' %}</th>
-                        <th>{% translate 'Цена за ед., в валюте' %}</th>
-                        <th>{% translate 'Курс' %}</th>
-                        <th>{% translate 'Сумма, руб.' %}</th>
+                        <th class="calc_row_contragent">{% translate 'Клиент/Поставщик' %}</th>
+                        <th class="calc_row_service_name">{% translate 'Статья услуг' %}</th>
+                        <th class="calc_row_settlement_procedure">{% translate 'Порядок расчета' %}</th>
+                        <th class="calc_row_measure">{% translate 'Ед. измерения' %}</th>
+                        <th class="calc_row_departure_station">{% translate 'Место отправления' %}</th>
+                        <th class="calc_row_destination_station">{% translate 'Место назначения' %}</th>
+                        <th class="calc_row_currency">{% translate 'Валюта' %}</th>
+                        <th class="calc_row_count">{% translate 'Кол-во' %}</th>
+                        <th class="calc_row_single_amount">{% translate 'Цена за ед., в валюте' %}</th>
+                        <th class="calc_row_exchange_rate">{% translate 'Курс' %}</th>
+                        <th class="calc_row_ttl">{% translate 'Сумма, руб.' %}</th>  
                     </tr>
                 </thead>
                 <tbody>
                 {% for calc_sheet_credit_row in calc_sheet_credit_rows %}
                     <tr class="calc-row">                    
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_contragent}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_service_name}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_settlement_procedure}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_measure}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_currency}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_count}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_single_amount}}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.calc_row_exchange_rate }}"></td>
-                        <td><input disabled value="{{calc_sheet_credit_row.total}}"></td>                        
+                        <td class="calc_row_contragent"><input disabled value="{{calc_sheet_credit_row.calc_row_contragent}}"></td>
+                        <td class="calc_row_service_name"><input disabled value="{{calc_sheet_credit_row.calc_row_service_name}}"></td>
+                        <td class="calc_row_settlement_procedure"><input disabled value="{{calc_sheet_credit_row.calc_row_settlement_procedure}}"></td>
+                        <td class="calc_row_measure"><input disabled value="{{calc_sheet_credit_row.calc_row_measure}}"></td>
+                        <td class="calc_row_departure_station"><input disabled value="{{calc_sheet_credit_row.calc_row_departure_station}}"></td>
+                        <td class="calc_row_destination_station"><input disabled value="{{calc_sheet_credit_row.calc_row_destination_station}}"></td>
+                        <td class="calc_row_currency"><input disabled value="{{calc_sheet_credit_row.calc_row_currency}}"></td>
+                        <td class="calc_row_count"><input disabled value="{{calc_sheet_credit_row.calc_row_count}}"></td>
+                        <td class="calc_row_single_amount"><input disabled value="{{calc_sheet_credit_row.calc_row_single_amount}}"></td>
+                        <td class="calc_row_exchange_rate"><input disabled value="{{calc_sheet_credit_row.calc_row_exchange_rate }}"></td>
+                        <td class="calc_row_ttl"><input disabled value="{{calc_sheet_credit_row.total}}"></td>                        
                     </tr>
                 {% endfor %}
                 </tbody>
