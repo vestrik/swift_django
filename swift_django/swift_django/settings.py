@@ -137,9 +137,9 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
 
 STATIC_URL = 'static/'
 STATIC_ROOT = 'static/'
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "static/"),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "assets"),
+]
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -154,7 +154,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
+            "format": "================================================================================\n{levelname} {asctime} {module} {message}",
             "style": "{",
         },
     },
