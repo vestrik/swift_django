@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import logging
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -149,6 +150,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+class InfoFilter(logging.Filter):
+    # Фильтр для логгера, только сообщения с уровнем INFO
+    def filter(self, record):
+        if record.levelname == 'INFO':
+            return True
+        else:
+            return False
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -156,6 +165,11 @@ LOGGING = {
         "verbose": {
             "format": "================================================================================\n{levelname} {asctime} {module} {message}",
             "style": "{",
+        },
+    },
+    'filters': {
+        'info_filter': {
+            '()': 'swift_django.settings.InfoFilter',
         },
     },
     "handlers": {
@@ -170,17 +184,13 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": "INFO.log",
             "formatter": "verbose",
-        },
+            "filters": ["info_filter"]
+        },        
     },
     "loggers": {
         "": {
-            "handlers": ["file_error"],
-            "level": "ERROR",
-            "propagate": True,
-        },
-        "": {
-            "handlers": ["file_info"],
-            "level": "INFO",
+            "handlers": ["file_error", "file_info"],
+            "level": "INFO",          
             "propagate": True,
         },
     },
