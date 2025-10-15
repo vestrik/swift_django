@@ -324,24 +324,24 @@
             last_row.after(newRow); 
         }
         else {
-            ' + type + '
+            
             tbody = $("table[class=" + type + "_table]").find('tbody')
             tbody.append('<tr class="calc-row">');
             newRow = tbody.find('tr')
             newRow.append('<input type="hidden" name="' + type + '-0-id" value="" id="id_' + type + '-0-id" required="">');
             newRow.append('<td class="calc_row_type_hidden"><input type="text" name="' + type + '-0-calc_row_type" value="' + calc_row_type_value + '" id="id_' + type + '-0-calc_row_type" required=""></td>')
-            newRow.append('<td><input type="text" name="' + type + '-0-calc_row_contragent_text" id="id_' + type + '-0-calc_row_contragent_text" placeholder="Начните вводить для поиска" class="ui-autocomplete-input" autocomplete="off" required=""></td>')
+            newRow.append('<td class="calc_row_contragent"><input type="text" name="' + type + '-0-calc_row_contragent_text" id="id_' + type + '-0-calc_row_contragent_text" placeholder="Начните вводить для поиска" class="ui-autocomplete-input" autocomplete="off" required=""></td>')
             newRow.append('<td class="calc_row_type_hidden"><input type="text" name="' + type + '-0-calc_row_contragent" placeholder="Начните вводить для поиска" id="id_' + type + '-0-calc_row_contragent" required=""></td>')
-            newRow.append('<td><input type="text" name="' + type + '-0-calc_row_service_name_text" id="id_' + type + '-0-calc_row_service_name_text" placeholder="Начните вводить для поиска" class="ui-autocomplete-input" autocomplete="off" required=""></td>')
+            newRow.append('<td class="calc_row_service_name"><input type="text" name="' + type + '-0-calc_row_service_name_text" id="id_' + type + '-0-calc_row_service_name_text" placeholder="Начните вводить для поиска" class="ui-autocomplete-input" autocomplete="off" required=""></td>')
             newRow.append('<td class="calc_row_type_hidden"><input type="text" name="' + type + '-0-calc_row_service_name" placeholder="Начните вводить для поиска" id="id_' + type + '-0-calc_row_service_name" required=""></td>')
-            newRow.append('<td><select name="' + type + '-0-calc_row_settlement_procedure" id="id_' + type + '-0-calc_row_settlement_procedure" required="">\
+            newRow.append('<td class="calc_row_settlement_procedure"><select name="' + type + '-0-calc_row_settlement_procedure" id="id_' + type + '-0-calc_row_settlement_procedure" required="">\
                 <option value=""></option>\
                 <option value="PP">PP</option>\
                 <option value="CC">CC</option>\
                 <option value="PC">PC</option>\
                 <option value="CP">CP</option>\
             </select></td>')
-            newRow.append('<td><select name="' + type + '-0-calc_row_measure" id="id_' + type + '-0-calc_row_measure" required="">\
+            newRow.append('<td class="calc_row_measure"><select name="' + type + '-0-calc_row_measure" id="id_' + type + '-0-calc_row_measure" required="">\
                 <option value=""></option>\
                 <option value="декларация">декларация</option>\
                 <option value="контейнер">контейнер</option>\
@@ -376,7 +376,9 @@
                 <option value="40FR">40FR</option>\
                 <option value="40TK">40TK</option>\
             </select></td>')
-            newRow.append('<td><select name="' + type + '-0-calc_row_currency" id="id_' + type + '-0-calc_row_currency" required="">\
+            newRow.append('<td class="calc_row_departure_station"><input type="text" name="' + type + '-0-calc_row_departure_station" maxlength="500" id="' + type + '-0-calc_row_departure_station" required=""></td>')
+            newRow.append('<td class="calc_row_destination_station"><input type="text" name="' + type + '-0-calc_row_destination_station" maxlength="500" id="' + type + '-0-calc_row_destination_station" required=""></td>')
+            newRow.append('<td class="calc_row_currency"><select name="' + type + '-0-calc_row_currency" id="id_' + type + '-0-calc_row_currency" required="">\
                 <option value=""></option>\
                 <option value="RUB">RUB</option>\
                 <option value="CNY">CNY</option>\
@@ -384,10 +386,10 @@
                 <option value="EUR">EUR</option>\
                 <option value="KZT">KZT</option>\
             </select></td>')
-            newRow.append('<td><input type="number" name="' + type + '-0-calc_row_count" min="0" id="id_' + type + '-0-calc_row_count" required=""></td>')
-            newRow.append('<td><input type="number" name="' + type + '-0-calc_row_single_amount" step="0.01" id="id_' + type + '-0-calc_row_single_amount" required=""></td>')
-            newRow.append('<td><input type="number" name="' + type + '-0-calc_row_exchange_rate" step="0.01" id="id_' + type + '-0-calc_row_exchange_rate" required=""></td>')
-            newRow.append('<td><input type="number" name="' + type + '-0-calc_row_ttl" id="id_' + type + '-0-calc_row_ttl" class="autocalc" disabled=""></td>')
+            newRow.append('<td class="calc_row_count"><input type="number" name="' + type + '-0-calc_row_count" min="0" id="id_' + type + '-0-calc_row_count" required=""></td>')
+            newRow.append('<td class="calc_row_single_amount"><input type="number" name="' + type + '-0-calc_row_single_amount" step="0.01" id="id_' + type + '-0-calc_row_single_amount" required=""></td>')
+            newRow.append('<td class="calc_row_exchange_rate"><input type="number" name="' + type + '-0-calc_row_exchange_rate" step="0.01" id="id_' + type + '-0-calc_row_exchange_rate" required=""></td>')
+            newRow.append('<td class="calc_row_ttl"><input type="number" name="' + type + '-0-calc_row_ttl" id="id_' + type + '-0-calc_row_ttl" class="autocalc" disabled=""></td>')
             newRow.append('<td></td>')
 
         }
