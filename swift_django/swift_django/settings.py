@@ -159,18 +159,30 @@ LOGGING = {
         },
     },
     "handlers": {
-        "file": {
+        "file_error": {
             "level": "ERROR",
             "class": "logging.FileHandler",
             "filename": "ERROR.log",
             "formatter": "verbose",
         },
+        "file_info": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "INFO.log",
+            "formatter": "verbose",
+        },
     },
     "loggers": {
         "": {
-            "handlers": ["file"],
+            "handlers": ["file_error"],
             "level": "ERROR",
             "propagate": True,
         },
+        "": {
+            "handlers": ["file_info"],
+            "level": "INFO",
+            "propagate": True,
+        },
     },
+    
 }
