@@ -2,10 +2,7 @@ import logging
 import json
 import requests
 import hashlib
-from django.contrib import messages
 from accounts.models import UserProfile
-
-ERR_MESSAGE_ENDING = ' Обратитесь на почту m.golovanov@uk-swift.ru.'
 
 class SolIncorrectAuthDataException(Exception):
     pass
@@ -23,11 +20,11 @@ class SolWorker:
         user_profile = UserProfile.objects.filter(user_id=self.user).values('sol_login', 'sol_password')[0]        
         return user_profile['sol_login'], user_profile['sol_password']
     
-    def auth(self):
-        self.login, password = self.__fetch_sol_auth_data_from_db()
+    def __authorization(self):
+        self.sol_login, password = self.__fetch_sol_auth_data_from_db()
         passw = hashlib.md5(password.encode('utf-8')).hexdigest().upper()
         data = {
-            "username": self.login,
+            "username": self.sol_login,
             "password": passw,
             "rememberMe": True,
             "companyId": 90,
@@ -41,45 +38,25 @@ class SolWorker:
             if response.json()['returnMsg'] == 'Bad credentials':
                 raise SolIncorrectAuthDataException()
         self.headers['Authorization'] = f"Bearer {token}"
-        
-    def upload_calc_sheet(self, request, order_no, debit_data, credit_data):
-        self.__fetch_sol_auth_data_from_db()
-        self.auth()
-        json_data = []
-        for debit_row in debit_data:
-            json_data.append({
-                "orderNo": order_no,
-                "feeName": int(debit_row.calc_row_service_name),
-                "fobCifName": debit_row.calc_row_settlement_procedure,
-                "currencyNo": debit_row.calc_row_currency,
-                "countUnit": debit_row.calc_row_measure,
-                "count": debit_row.calc_row_count,
-                "amountSingle": str(debit_row.calc_row_single_amount),
-                "payCustomerName": None,
-                "recCustomerName": int(debit_row.calc_row_contragent),
-                "remark": "",
-                "createdBy": self.login 
-            })
+    
+    def auth(self):
+        if not "Authorization" in self.headers:
+            self.__fetch_sol_auth_data_from_db()
+            self.__authorization()
             
-        for credit_row in credit_data:
-            json_data.append({
-                "orderNo": order_no,
-                "feeName": int(credit_row.calc_row_service_name),
-                "fobCifName": credit_row.calc_row_settlement_procedure,
-                "currencyNo": credit_row.calc_row_currency,
-                "countUnit": credit_row.calc_row_measure,
-                "count": credit_row.calc_row_count,
-                "amountSingle": str(credit_row.calc_row_single_amount),
-                "payCustomerName": int(credit_row.calc_row_contragent),
-                "recCustomerName": None,
-                "remark": "",
-                "createdBy": self.login 
-            })        
-        
-        response = requests.post('http://101.32.207.53:8089/base/api/saleshipfee/saveBatch', data=json.dumps(json_data), headers=self.headers)
-        if response.status_code != 200:            
-            self.logger.error(f'Ошибка при загрузке расчетного листа в СОЛ по заявке {order_no}: {response.json()}')
-            messages.add_message(request, messages.ERROR, f'Ошибка при загрузке расчетного листа в СОЛ по заявке {order_no}!{ERR_MESSAGE_ENDING}')
-        else:
-            messages.add_message(request, messages.SUCCESS, 'Успешно загрузили расчетный лист в СОЛ!')
-            return True
+    def upload_calc_rows(self, json_data, rows_ids):
+        calc_sheet_ids = {}
+        self.auth()
+        for i in range(len(json_data)):
+            try:
+                if json_data[i]["createdBy"] == '':
+                    json_data[i]["createdBy"] = self.sol_login
+            except KeyError:
+                pass
+        self.logger.info(json_data)
+        response = requests.post('http://101.32.207.53:8089/base/api/saleshipfee/saveBatch', data=json.dumps(json_data), headers=self.headers, timeout=360)
+        if response.status_code == 200 and response.json()['returnCode'] == 200:
+            for return_data in response.json()['returnData']:
+                index, real_id = return_data.values()               
+                calc_sheet_ids[rows_ids[index]] = real_id
+        return response.status_code, response.json(), calc_sheet_ids

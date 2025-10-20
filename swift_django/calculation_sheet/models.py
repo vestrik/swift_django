@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+from django.db import connections
 
 # Create your models here.
 
@@ -108,10 +109,26 @@ class CalculationSheetRow(models.Model):
     calc_row_settlement_procedure = models.CharField(max_length=10, blank=False, choices=SETTLEMENT_PROCEDURE_CHOICES)
     calc_row_departure_station = models.CharField(max_length=500, blank=False)
     calc_row_destination_station = models.CharField(max_length=500, blank=False)
-    calc_row_original_id = models.BigIntegerField()
-    
+    calc_row_original_id = models.BigIntegerField(null=True)
+    calc_row_delete_from_sol = models.SmallIntegerField(default=0)
+    calc_row_need_update_in_sol = models.SmallIntegerField(default=0)
+        
     def __str__(self):
-        return f'{self.calculation_sheet} {CalculationSheet.objects.get(id=self.calculation_sheet_id).calc_sheet_no} {self.calc_row_type} {self.calc_row_contragent}'
+        return f' {self.id} {self.calculation_sheet} {self.calc_row_type} {self.get_contragent_name(self.calc_row_contragent)} {self.get_service_article_name(self.calc_row_service_name)}'
+    
+    def get_contragent_name(self, contragent_id):
+        with connections['sol_cargo'].cursor() as cursor:
+            sql = f'select customer_name from airflow_customer_info where original_id = {contragent_id}'
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+        return rows[0][0]
+    
+    def get_service_article_name(self, service_article_id):
+        with connections['sol_cargo'].cursor() as cursor:
+            sql = f'select service_acticle from airflow_service_article where original_id = {service_article_id}'
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+        return rows[0][0]
     
     class Meta:
         verbose_name = 'Доход/Расход'

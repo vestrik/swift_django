@@ -20,8 +20,11 @@
                 {% else %}
                 <a href="{{ calc_sheet_info.sbis_href }}" class="base_button">{% translate 'Открыть задачу в Сбис' %}</a>
                 {% endif %}
-                {% if calc_sheet_info.sbis_approval_status == 'Задача согласована' %}
-                <a href="{% url 'calculation_sheet:sol_add_calc_sheet' calc_sheet_info.id %}" class="base_button">{% translate 'Загрузить расчетный лист в СОЛ' %}</a>
+                {% if calc_sheet_info.sbis_approval_status == 'Задача согласована' and calc_sheet_info.uploaded_at_sol == 'Нет' %}
+                <a href="{% url 'calculation_sheet:sol_upload_calc_sheet_to_sol' calc_sheet_info.id %}" class="base_button">{% translate 'Загрузить расчетный лист в СОЛ' %}</a>
+                {% endif %}
+                {% if calc_sheet_info.uploaded_at_sol == 'Да' %}
+                <a href="{% url 'calculation_sheet:sol_upload_calc_sheet_to_sol' calc_sheet_info.id %}" class="base_button">{% translate 'Обновить данные расчетного листа в СОЛ' %}</a>
                 {% endif %}
                 <a href="{% url 'calculation_sheet:download_pdf' calc_sheet_info.id %}" class="base_button">{% translate 'Скачать ПДФ' %}</a>
                 

@@ -99,7 +99,7 @@ def add_names_to_rows(clients_data, article_services_data, rows):
 @login_required(login_url='accounts:login')
 def home(request):    
     """ Домашняя страница """
-    
+
     calc_sheets = CalculationSheet.objects.all().order_by('-created_at')
     calc_sheet_filter = CalculationSheetFilter(request.GET, queryset=calc_sheets)
     calc_sheets = calc_sheet_filter.qs[:10]
@@ -113,19 +113,28 @@ def home(request):
 def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=False):
     """ Сохраняем созданный/измененный формсет. При необходимости удаляем записи в БД. """
     
-    formset_instance = formset.save(commit=False)    
-
-    for row_form_instance in formset_instance:      
+    formset_instance = formset.save(commit=False)
+    calc_sheet = CalculationSheet.objects.get(id=calc_sheet_id)
+    for row_form_instance in formset_instance:
         if row_form_instance.created_by == '':
-            row_form_instance.created_by = str(request.user)         
+            row_form_instance.created_by = str(request.user)
         row_form_instance.edited_by = str(request.user)
         row_form_instance.edited_at = timezone.now()
         if calc_sheet_id is not None:
             row_form_instance.calculation_sheet_id = calc_sheet_id
+            if calc_sheet.uploaded_at_sol == 'Да' and row_form_instance.calc_row_original_id is not None:
+                row_form_instance.calc_row_need_update_in_sol = 1
         row_form_instance.save()
-    if need_deletion:
+    if need_deletion: 
         for form_to_delete in formset.deleted_objects:
-            form_to_delete.delete()     
+            if calc_sheet.uploaded_at_sol == 'Да':
+                form_to_delete.calc_row_delete_from_sol = 1
+                form_to_delete.save()
+            else:
+                form_to_delete.delete()
+    if calc_sheet.uploaded_at_sol == 'Да':
+        calc_sheet.uploaded_at_sol = 'Данные не обновлены'
+        calc_sheet.save()
 
 @login_required(login_url='accounts:login')
 def create_calculation_sheet(request):
@@ -223,8 +232,8 @@ def view_info(request, id):
     """ Просмотр расчетного листа """
     
     calc_sheet_info = CalculationSheet.objects.get(id=id)
-    calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')    
-    calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')    
+    calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0)    
+    calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0)    
     debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(calc_sheet_debit_rows), calc_ttl_sum_for_calc_sheet_rows(calc_sheet_credit_rows)
         
     job_num_data = fetch_order_data_from_db(calc_sheet_info.order_no)
@@ -254,28 +263,25 @@ def view_info(request, id):
 def edit_info(request, id):    
     """ Изменение расчетного листа """
     
-    CalculationSheetRowDebitFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowDebitForm, extra=0, can_delete=True)    
-    CalculationSheetRowCreditFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowCreditForm, extra=0, can_delete=True)   
+    CalculationSheetRowDebitFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowDebitForm, extra=0, can_delete=True)
+    CalculationSheetRowCreditFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowCreditForm, extra=0, can_delete=True)
     if request.method == 'POST':
         debit_row_formset = CalculationSheetRowDebitFormSet(request.POST, prefix='debit')
         credit_row_formset = CalculationSheetRowCreditFormSet(request.POST, prefix='credit')
-        if debit_row_formset.is_valid() and credit_row_formset.is_valid():             
+        if debit_row_formset.is_valid() and credit_row_formset.is_valid():
             if debit_row_formset.has_changed():
-                process_rows_formset(request, debit_row_formset, calc_sheet_id=id, need_deletion=True)                          
+                process_rows_formset(request, debit_row_formset, calc_sheet_id=id, need_deletion=True)
             if credit_row_formset.has_changed():
-                process_rows_formset(request, credit_row_formset, calc_sheet_id=id, need_deletion=True)                            
-                        
+                process_rows_formset(request, credit_row_formset, calc_sheet_id=id, need_deletion=True)
             return redirect('calculation_sheet:view_info', id)
     else:
         calc_sheet_info = CalculationSheet.objects.get(id=id)
-        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
-        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
-        clients_data, article_services_data = fetch_clients_and_services_data_from_db()            
+        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0)
+        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0)
+        clients_data, article_services_data = fetch_clients_and_services_data_from_db()
         debit_row_formset = CalculationSheetRowDebitFormSet(prefix='debit', queryset=debit_data)
-        credit_row_formset = CalculationSheetRowCreditFormSet(prefix='credit', queryset=credit_data)        
+        credit_row_formset = CalculationSheetRowCreditFormSet(prefix='credit', queryset=credit_data)
         order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-   
-        
         context = {
             'calc_sheet_info': calc_sheet_info,
             'order_data': order_data,
@@ -304,22 +310,22 @@ def make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, mar
         'calc_sheet_credit_rows': credit_data
     }
     # Рендерим html шаблон с данными
-    html = render_to_string("calculation_sheet/templates_for_pdf_render/calculation_sheet_for_sbis.html", context)    
-    # Читаем css 
+    html = render_to_string("calculation_sheet/templates_for_pdf_render/calculation_sheet_for_sbis.html", context)
+    # Читаем css
     with open('assets/css/pdf_styles.css') as file:
-        css_str = file.read()        
+        css_str = file.read()
     # Формируем ПДФ, сохраняем в память
     byte_ = HTML(string=html).write_pdf(presentational_hints=True, stylesheets=[CSS(string=css_str)])
     # Переводим в base64
-    bs = base64.b64encode(byte_).decode('ascii')              
+    bs = base64.b64encode(byte_).decode('ascii')
     return bs, byte_
 
 def download_pdf(request, id):
     try: 
         calc_sheet_info = CalculationSheet.objects.get(id=id)
         order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
-        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
+        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0)
+        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0)
         debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
         margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
         clients_data, article_services_data = fetch_clients_and_services_data_from_db()
@@ -366,15 +372,85 @@ def sbis_create_task(request, id):
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)
 
 @login_required(login_url='accounts:login')
-def sol_add_calc_sheet(request, id):
+def sol_upload_calc_sheet_to_sol(request, id):
+    
     calc_sheet_info = CalculationSheet.objects.get(id=id)
-    debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
-    credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
+    calc_sheet_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id)
+    json_data, i, rows_ids = [], -1, {}
+    for calc_sheet_row in calc_sheet_rows:
+        if calc_sheet_row.calc_row_original_id is None:
+            json_data.append({
+                "id": i,
+                "orderNo": calc_sheet_info.order_no,
+                "feeName": int(calc_sheet_row.calc_row_service_name),
+                "fobCifName": calc_sheet_row.calc_row_settlement_procedure,
+                "currencyNo": calc_sheet_row.calc_row_currency,
+                "countUnit": calc_sheet_row.calc_row_measure,
+                "count": calc_sheet_row.calc_row_count,
+                "amountSingle": str(calc_sheet_row.calc_row_single_amount),
+                "payCustomerName": None if calc_sheet_row.calc_row_type == 'Доход' else int(calc_sheet_row.calc_row_contragent),
+                "recCustomerName": int(calc_sheet_row.calc_row_contragent) if calc_sheet_row.calc_row_type == 'Доход' else None,
+                "departureStationName": calc_sheet_row.calc_row_departure_station,
+                "destinationStationName": calc_sheet_row.calc_row_destination_station,
+                "remark": "",
+                "createdBy": ""
+            })
+            rows_ids[i] = calc_sheet_row.id
+            i -= 1
+        elif calc_sheet_row.calc_row_original_id is not None and calc_sheet_row.calc_row_need_update_in_sol == 1:
+            json_data.append({
+                "id": calc_sheet_row.calc_row_original_id,
+                "orderNo": calc_sheet_info.order_no,
+                "feeName": int(calc_sheet_row.calc_row_service_name),
+                "fobCifName": calc_sheet_row.calc_row_settlement_procedure,
+                "currencyNo": calc_sheet_row.calc_row_currency,
+                "countUnit": calc_sheet_row.calc_row_measure,
+                "count": calc_sheet_row.calc_row_count,
+                "amountSingle": str(calc_sheet_row.calc_row_single_amount),
+                "payCustomerName": None if calc_sheet_row.calc_row_type == 'Доход' else int(calc_sheet_row.calc_row_contragent),
+                "recCustomerName": int(calc_sheet_row.calc_row_contragent) if calc_sheet_row.calc_row_type == 'Доход' else None,
+                "departureStationName": calc_sheet_row.calc_row_departure_station,
+                "destinationStationName": calc_sheet_row.calc_row_destination_station,
+                "remark": "",
+                "createdBy": "",
+                "deleteFlag": 0
+            })
+        elif calc_sheet_row.calc_row_original_id is not None and calc_sheet_row.calc_row_delete_from_sol == 1:
+            json_data.append({
+                "id": calc_sheet_row.calc_row_original_id,
+                "deleteFlag": 1
+            })
     try:
-        is_created = SolWorker(request.user).upload_calc_sheet(request, calc_sheet_info.order_no, debit_data, credit_data)
-        if is_created:
-            calc_sheet_info.uploaded_at_sol = 'Да'
-            calc_sheet_info.save()
+        status_code, api_response, calc_sheet_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
     except SolIncorrectAuthDataException:
-        messages.add_message(request, messages.ERROR, _('Некорректные логин/пароль для СОЛа! Укажите верные в профиле.'))    
+        messages.add_message(request, messages.ERROR, _('Некорректные логин/пароль для СОЛа! Укажите верные в профиле.'))
+    except Exception:
+        messages.add_message(request, messages.ERROR, _(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}. Обратитесь на почту m.golovanov@uk-swift.ru'))
+        logger.error(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}: {status_code} {api_response}')
+    else:
+        if status_code == 200 and api_response['returnCode'] == 200:
+            messages.add_message(request, messages.SUCCESS, _('Успешно загрузили расчетный лист в СОЛ!'))
+            try:
+                for calc_sheet_row in calc_sheet_rows:
+                    if calc_sheet_row.calc_row_original_id is None:
+                        calc_sheet_row.calc_row_original_id = calc_sheet_ids[calc_sheet_row.id]
+                        calc_sheet_row.save()
+                    elif calc_sheet_row.calc_row_original_id is not None and calc_sheet_row.calc_row_need_update_in_sol == 1:
+                        calc_sheet_row.calc_row_need_update_in_sol = 0
+                        calc_sheet_row.save()
+                    elif calc_sheet_row.calc_row_original_id is not None and calc_sheet_row.calc_row_delete_from_sol == 1:
+                        calc_sheet_row.delete()
+                if calc_sheet_info.uploaded_at_sol == 'Нет':
+                    calc_sheet_info.uploaded_at_sol = 'Да'
+                    calc_sheet_info.save()
+            except Exception as e:
+                logger.error('=====================================================================================================')
+                logger.error(f'Ошибка при сохранении данных р/л в БД. order_no: {calc_sheet_info.order_no}, {status_code} {api_response}')
+                logger.error(f'calc_sheet_ids: {calc_sheet_ids}')
+                logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
+                logger.error('=====================================================================================================')
+        else:
+            messages.add_message(request, messages.ERROR, _(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}. Обратитесь на почту m.golovanov@uk-swift.ru'))
+            logger.error(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}: {status_code} {api_response}')
+        
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)
