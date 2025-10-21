@@ -114,7 +114,8 @@ def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=Fal
     """ Сохраняем созданный/измененный формсет. При необходимости удаляем записи в БД. """
     
     formset_instance = formset.save(commit=False)
-    calc_sheet = CalculationSheet.objects.get(id=calc_sheet_id)
+    if calc_sheet_id is not None:
+        calc_sheet = CalculationSheet.objects.get(id=calc_sheet_id)
     for row_form_instance in formset_instance:
         if row_form_instance.created_by == '':
             row_form_instance.created_by = str(request.user)
@@ -132,9 +133,10 @@ def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=Fal
                 form_to_delete.save()
             else:
                 form_to_delete.delete()
-    if calc_sheet.uploaded_at_sol == 'Да':
-        calc_sheet.uploaded_at_sol = 'Данные не обновлены'
-        calc_sheet.save()
+    if calc_sheet_id is not None:
+        if calc_sheet.uploaded_at_sol == 'Да':
+            calc_sheet.uploaded_at_sol = 'Данные не обновлены'
+            calc_sheet.save()
 
 @login_required(login_url='accounts:login')
 def create_calculation_sheet(request):
@@ -152,6 +154,8 @@ def create_calculation_sheet(request):
         if calc_sheet_form.is_valid():
             calc_sheet_instance = calc_sheet_form.save(commit=False)
             calc_sheet_instance.author = str(request.user)
+            if calc_sheet_instance.order_no == '':
+                calc_sheet_instance.order_no = None
             debit_row_formset = CalculationSheetRowDebitFormSet(request.POST, instance=calc_sheet_instance, prefix='debit')
             credit_row_formset = CalculationSheetRowCreditFormSet(request.POST, instance=calc_sheet_instance, prefix='credit')
 

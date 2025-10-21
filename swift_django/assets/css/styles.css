@@ -45,7 +45,7 @@ a:hover {color: var(--accent-color);}
   border-radius: 12px;
   padding: 8px 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin: 1rem 0;
+  margin: 1rem 1rem;
 }
 body main {margin: 10px 0;}
 /* Убираем стрелочки "вверх" и "вниз" у числовых инпутов */
@@ -130,6 +130,7 @@ input::-webkit-inner-spin-button {
 /* Карточка с данными по заявке */
 .order-data {display: flex;}
 .order-data p {margin: 0px;padding: 3px;}
+.order-data_calc_sheet_name {display: none;}
 
 .create-calculation-sheet input[id='id_order_no'], .create-calculation-sheet input[id='id_calc_sheet_no'] {
   background-color: rgba(255, 161, 161, 0.3);

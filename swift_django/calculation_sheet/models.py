@@ -74,17 +74,21 @@ class CalculationSheet(models.Model):
     author = models.CharField(max_length=100)
     created_at = models.DateTimeField(default=timezone.now)
     slug = models.SlugField(max_length=200, editable=False)
-    order_no = models.CharField(max_length=100, blank=False, null=True, unique=True)
+    calc_sheet_name = models.CharField(max_length=500, null=True, blank=True)
+    order_no = models.CharField(max_length=100, blank=True, null=True, unique=True)
     sbis_href = models.CharField(max_length=512, blank=True, null=True)
     sbis_doc_id = models.CharField(max_length=256, blank=True, null=True)
     sbis_approval_status = models.CharField(max_length=128, blank=False, null=False, default='Нет задачи в Сбис на согласование')
     uploaded_at_sol = models.CharField(max_length=32, blank=False, null=False, default='Нет')
     
     def __str__(self):
-        return self.order_no
+        return self.order_no if self.order_no is not None else self.calc_sheet_name
     
     def save(self, *args, **kwargs):
-        self.slug = slugify(f'{self.order_no}', allow_unicode=True)
+        if self.order_no is not None:
+            self.slug = slugify(f'{self.order_no}', allow_unicode=True)
+        else:
+            self.slug = slugify(f'{self.calc_sheet_name}_{self.created_at.date}', allow_unicode=True)
         super(CalculationSheet, self).save(*args, **kwargs)
         
     class Meta:

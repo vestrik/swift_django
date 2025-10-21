@@ -25,9 +25,10 @@ class CalculationSheetRowCreditForm(ModelForm):
         
 
 class CalculationSheetForm(ModelForm):    
-    order_no = CharField(widget=TextInput(attrs={'placeholder': 'Начните вводить для поиска'}))
+    order_no = CharField(widget=TextInput(attrs={'placeholder': 'Начните вводить для поиска'}), required=False)
+    calc_sheet_name = CharField(widget=TextInput(), required=False)
     
     class Meta:
         model = CalculationSheet
-        fields = ['order_no',]            
+        fields = ['order_no', 'calc_sheet_name']            
         

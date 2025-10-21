@@ -6,13 +6,21 @@
 
 <div class="create-calculation-sheet">
     <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+        {% csrf_token %}                     
         <div class="card">
-            <p class="calculation-sheet-card-name">{% translate 'Заявка' %}</p>
-            <div class="order-data">
-                <div class="order-data_user-input">
-                    <p>{% translate 'Выберите заявку из списка' %}:</p>
-                    {{ calc_sheet_form.order_no }}
+            <p class="calculation-sheet-card-name">{% translate 'Заявка' %}</p>                
+            <div class="order-data"> 
+                <div>
+                    <div class="div_has_sol_order div_horizontal">
+                        <input type="checkbox" id="has_sol_order"/><p>Отметьте, если нет заявки в СОЛ</p>
+                    </div>
+                    <div class="order-data_user-input">                    
+                        <p>{% translate 'Выберите заявку из списка' %}:</p>
+                        {{ calc_sheet_form.order_no }}
+                    </div>
+                    <div class="order-data_calc_sheet_name">
+                        <p>{% translate 'Название Р/Л' %}:</p>{{ calc_sheet_form.calc_sheet_name }}
+                    </div>
                 </div>
                 <div class="order-data_fetched">
                     <div class="div_horizontal">
@@ -396,6 +404,26 @@
         }
     })
 
+    $('#has_sol_order').click(function(){
+        if ($(this).is(':checked')){
+            $(".order-data_fetched").hide();
+            $(".order-data_user-input").hide();
+            $(".order-data_calc_sheet_name").toggle();
+            $("#id_order_no").val("");
+            $("#order-data_department").val("");
+            $("#order-data_ktk").val("");
+            $("#order-data_client").val("");
+            $("#order-data_station_from").val("");
+            $("#order-data_station_to").val("");
+        }
+        else {
+            $(".order-data_calc_sheet_name").hide()
+            $(".order-data_user-input").toggle();
+            $(".order-data_fetched").toggle()
+            $("#id_calc_sheet_name").val("");
+        }
+    })
+
     // Получаем массив из Django
     var ClientData = {{ clients_data|safe }};
     var articleServicesData = {{ article_services_data|safe }};
@@ -427,6 +455,7 @@
         $("div[class='calc-sheet-table']").find('select').prop('required',true);
         // Кроме этих
         $("div[class='calc-sheet-table']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
+        $('#id_order_no').prop('required', false);
         
     })
 </script>
