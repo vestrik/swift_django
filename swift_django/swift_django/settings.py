@@ -163,7 +163,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "================================================================================\n{levelname} {asctime} {module} {message}",
+            "format": "================================================================================\n{levelname} {asctime} {module}: {message}",
             "style": "{",
         },
     },

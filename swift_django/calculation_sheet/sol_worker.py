@@ -53,7 +53,7 @@ class SolWorker:
                     json_data[i]["createdBy"] = self.sol_login
             except KeyError:
                 pass
-        self.logger.info(json_data)
+        
         response = requests.post('http://101.32.207.53:8089/base/api/saleshipfee/saveBatch', data=json.dumps(json_data), headers=self.headers, timeout=360)
         if response.status_code == 200 and response.json()['returnCode'] == 200:
             for return_data in response.json()['returnData']:
