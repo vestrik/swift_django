@@ -99,7 +99,7 @@ input::-webkit-inner-spin-button {
   margin: 8px 16px;
 }
 
-.calc-sheet-input, input[id='id_order_no'], input[id='id_calc_sheet_no']  {
+.calc-sheet-input, input[id='id_calc_sheet_no'] {
   width: 180px;
   height: 15px;
   padding: 5px;
@@ -115,13 +115,27 @@ input::-webkit-inner-spin-button {
   margin: 5px;
 }
 
-.calc-sheet-filter-form input {background-color: white;}
+.calc-sheet-filter-form input {
+  width: 180px;
+  height: 15px;
+  padding: 5px;
+  margin: 5px;
+  border-width: 0.6px;
+  border-style: inset;
+  color: rgb(84, 84, 84);
+  border-color: rgba(118, 118, 118, 0.3);
+  background-color: white;
+}
 
-#id_sbis_approval_status {
+.calc-sheet-filter-form #id_sbis_approval_status {
   width: 250px;
   height: 26.8px;
 }
 
+.calc-sheet-filter-form #id_has_order_no {
+  width: 100px;
+  height: 26.8px;
+}
 
 
 

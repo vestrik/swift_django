@@ -5,44 +5,68 @@
 
 
 <div class="create-calculation-sheet">
-    <div class="card">
-        <p class="calculation-sheet-card-name">{% translate 'Заявка' %}</p>
-        <div class="order-data">
-            <div class="order-data_user-input">
-                <p>{% translate 'Заявка' %}</p>
-                <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.order_no }}" disabled>                
-            </div>
-            <div class="order-data_fetched">
-                <div class="div_horizontal">
-                    <p>{% translate 'Данные из СОЛа автоматически загрузятся после выбора заявки' %}</p>
-                </div>
-                <div class="div_horizontal">
-                    <p>{% translate 'Направление' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.department}}" disabled>
-                    <p>{% translate 'Станция, от' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_from}}" disabled>
-                    <p>{% translate 'Станция, до' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_to}}" disabled>
-                </div>
-                <div class="div_horizontal">
-                    <p>{% translate 'КТК' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.box}}" disabled>
-                    <p>{% translate 'Клиент' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.client}}" disabled>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card calculation-list-total-info">
-        <p class="calculation-sheet-card-name">Итог</p>
-        <div class="div_horizontal">
-            <p>{% translate 'Доход' %}</p>
-            <input class="calc-sheet-input" type="text" id="debit-total-sum_1" disabled>
-            <p>{% translate 'Расход' %}</p>
-            <input class="calc-sheet-input" type="text" id="credit-total-sum_1" disabled>
-            <p>{% translate 'Маржа' %}</p>
-            <input class="calc-sheet-input" type="text" id="margin-total-sum" disabled>
-            <p>{% translate '% маржи' %}</p>
-            <input class="calc-sheet-input" type="text" id="margin-total-percent" disabled>
-        </div>
-    </div>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <div class="card">
+            <p class="calculation-sheet-card-name">{% translate 'Заявка' %}</p>
+            <div class="order-data">
+                <div class="order-data_user-input">                    
+                    {% if calc_sheet_info.order_no is not none %}
+                        <p>{% translate 'Заявка' %}</p>
+                        <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.order_no }}" disabled>
+                    {% else %}
+                    <div class="">                    
+                        <p>{% translate 'Выберите заявку из списка' %}:</p>
+                        {{ calc_sheet_form.order_no }}
+                    </div>
+                    <div class="">
+                        <p>{% translate 'Название Р\Л' %}</p>
+                        {{ calc_sheet_form.calc_sheet_name }} 
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="order-data_fetched">
+                    <div class="div_horizontal">
+                        <p>{% translate 'Данные из СОЛа автоматически загрузятся после выбора заявки' %}</p>
+                    </div>
+                    {% if calc_sheet_info.order_no is not none %}
+                    <div class="div_horizontal">
+                        <p>{% translate 'Направление' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.department}}" disabled>
+                        <p>{% translate 'Станция, от' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_from}}" disabled>
+                        <p>{% translate 'Станция, до' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.station_to}}" disabled>
+                    </div>
+                    <div class="div_horizontal">
+                        <p>{% translate 'КТК' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.box}}" disabled>
+                        <p>{% translate 'Клиент' %}:</p><input class="calc-sheet-input" type="text" value="{{order_data.client}}" disabled>
+                    </div>
+                    {% else %}
+                    <div class="div_horizontal">
+                        <p>{% translate 'Направление' %}:</p><input class="calc-sheet-input" type="text" id="order-data_department" disabled>
+                        <p>{% translate 'Станция, от' %}:</p><input class="calc-sheet-input" type="text" id="order-data_station_from" disabled>
+                        <p>{% translate 'Станция, до' %}:</p><input class="calc-sheet-input" type="text" id="order-data_station_to" disabled>
+                    </div>
+                    <div class="div_horizontal">
+                        <p>{% translate 'КТК' %}:</p><input class="calc-sheet-input" type="text" id="order-data_ktk" disabled>
+                        <p>{% translate 'Клиент' %}:</p><input class="calc-sheet-input" type="text" id="order-data_client" disabled>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card calculation-list-total-info">
+            <p class="calculation-sheet-card-name">Итог</p>
+            <div class="div_horizontal">
+                <p>{% translate 'Доход' %}</p>
+                <input class="calc-sheet-input" type="text" id="debit-total-sum_1" disabled>
+                <p>{% translate 'Расход' %}</p>
+                <input class="calc-sheet-input" type="text" id="credit-total-sum_1" disabled>
+                <p>{% translate 'Маржа' %}</p>
+                <input class="calc-sheet-input" type="text" id="margin-total-sum" disabled>
+                <p>{% translate '% маржи' %}</p>
+                <input class="calc-sheet-input" type="text" id="margin-total-percent" disabled>
+            </div>
+        </div>
+
         <div class="card">
             <p class="calculation-sheet-card-name">{% translate 'Доход' %}</p>
             {{ debit_row_formset.management_form }}
@@ -100,7 +124,6 @@
                     </div>
                 </div>            
         </div>  
-                
         <div class="card">
             <p class="calculation-sheet-card-name">{% translate 'Расход' %}</p>
             {{ credit_row_formset.management_form }}
@@ -428,6 +451,71 @@
     // Получаем массив из Django
     var ClientData = {{ clients_data|safe }};
     var articleServicesData = {{ article_services_data|safe }};  
+    var Orders = {{ orders|safe }};  
+
+    // когда пропадает фокус с элемента id_order_no
+    $('#id_order_no').focusout(function () {
+        
+        // Получаем CSRF-токен
+        var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+        // Получаем значение элемента id_order_no
+        var order_no = $('#id_order_no').val();    
+
+        // Если значение из списка       
+        if (Orders.includes(order_no)){
+            $('#order-do-not-exists-in-sol-error').remove();
+            $("#id_calc_sheet_name").hide()
+            $.ajax({
+                data: {'job_num': $('#id_order_no').val()},
+                dataType: "json",
+                type: 'POST',
+                url: "{% url 'calculation_sheet:check_if_calc_sheet_exists' %}",
+                headers: {
+                    'X-CSRFToken': csrftoken 
+                },
+                success: function(data) {                    
+                    if (data.already_exists == 'true') {
+                        $('.django-messages').append('<ul class="messages"><li class="django-messages-li-error" id="order-already-exists-error">Расчетный лист для этой заявки уже существует.</li></ul>');
+                    }
+                    else {
+                        $('#order-already-exists-error').remove();
+                    }
+                }
+            })
+            // Отправляем запрос
+            $.ajax({
+                data: {'job_num': $('#id_order_no').val()},
+                dataType: "json",
+                type: 'POST',
+                url: "{% url 'calculation_sheet:fetch_data_for_order' %}",
+                headers: {
+                    'X-CSRFToken': csrftoken 
+                },
+                // Если запрос успешный - рендерим значения из ответа в элементы
+                success: function(data) {                    
+                    $("#order-data_department").val(data.department);
+                    $("#order-data_ktk").val(data.box);
+                    $("#order-data_client").val(data.client);
+                    $("#order-data_station_from").val(data.station_from);
+                    $("#order-data_station_to").val(data.station_to);
+                }
+            })
+        }
+        else {
+            // Если не пустое (null, Nan, 0, '', undefined)
+            if (!!order_no) {                
+                $('#order-do-not-exists-in-sol-error').remove();
+                $('.django-messages').append('<ul class="messages"><li class="django-messages-li-error" id="order-do-not-exists-in-sol-error">Такая заявка не существует в SOL.</li></ul>');
+            }
+            
+            $("#order-data_department").val("");
+            $("#order-data_ktk").val("");
+            $("#order-data_client").val("");
+            $("#order-data_station_from").val("");
+            $("#order-data_station_to").val("");
+            $("#id_calc_sheet_name").show()
+        }
+    })
 
     $(document).ready(function() {        
         
@@ -483,6 +571,8 @@
         // Кроме этих
         $("div[class='calc-sheet-table']").find('table').find('input[id$="calc_row_ttl"]').prop('required', false);
         $("div[class='calc-sheet-table']").find('table').find('input[type=checkbox]').prop('required', false);
+
+        setAutocomplete($("input[id='id_order_no']"), Orders);
 
     })
 </script>

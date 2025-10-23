@@ -245,7 +245,8 @@ def view_info(request, id):
     clients_data, article_services_data = fetch_clients_and_services_data_from_db()
     add_names_to_rows(clients_data, article_services_data, calc_sheet_debit_rows)
     add_names_to_rows(clients_data, article_services_data, calc_sheet_credit_rows)
-        
+    if calc_sheet_info.order_no == None:
+        calc_sheet_info.order_no = ''
     context = {
         'calc_sheet_info': calc_sheet_info,
         'order_department': job_num_data['department'],
@@ -269,30 +270,46 @@ def edit_info(request, id):
     
     CalculationSheetRowDebitFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowDebitForm, extra=0, can_delete=True)
     CalculationSheetRowCreditFormSet = modelformset_factory(model=CalculationSheetRow, form=CalculationSheetRowCreditForm, extra=0, can_delete=True)
+    calc_sheet_info = CalculationSheet.objects.get(id=id)
+    
     if request.method == 'POST':
         debit_row_formset = CalculationSheetRowDebitFormSet(request.POST, prefix='debit')
         credit_row_formset = CalculationSheetRowCreditFormSet(request.POST, prefix='credit')
-        if debit_row_formset.is_valid() and credit_row_formset.is_valid():
-            if debit_row_formset.has_changed():
-                process_rows_formset(request, debit_row_formset, calc_sheet_id=id, need_deletion=True)
-            if credit_row_formset.has_changed():
-                process_rows_formset(request, credit_row_formset, calc_sheet_id=id, need_deletion=True)
-            return redirect('calculation_sheet:view_info', id)
+        calc_sheet_form = CalculationSheetForm(request.POST, instance=calc_sheet_info)        
+        if calc_sheet_form.is_valid():
+            if calc_sheet_form.has_changed():
+                calc_sheet_form_instance = calc_sheet_form.save(commit=False)
+                if calc_sheet_form_instance.order_no == '':
+                    calc_sheet_form_instance.order_no = None
+                
+            if debit_row_formset.is_valid() and credit_row_formset.is_valid():
+                calc_sheet_form_instance.save()
+                if debit_row_formset.has_changed():
+                    process_rows_formset(request, debit_row_formset, calc_sheet_id=id, need_deletion=True)
+                if credit_row_formset.has_changed():
+                    process_rows_formset(request, credit_row_formset, calc_sheet_id=id, need_deletion=True)
+                return redirect('calculation_sheet:view_info', id)
+        else:
+            print(calc_sheet_form.errors)
     else:
-        calc_sheet_info = CalculationSheet.objects.get(id=id)
         debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0)
         credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0)
+
         clients_data, article_services_data = fetch_clients_and_services_data_from_db()
         debit_row_formset = CalculationSheetRowDebitFormSet(prefix='debit', queryset=debit_data)
         credit_row_formset = CalculationSheetRowCreditFormSet(prefix='credit', queryset=credit_data)
         order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
+        orders = fetch_orders_from_db()
+        calc_sheet_form = CalculationSheetForm(instance=calc_sheet_info)
         context = {
             'calc_sheet_info': calc_sheet_info,
+            'calc_sheet_form': calc_sheet_form,
             'order_data': order_data,
             'debit_row_formset': debit_row_formset,
             'credit_row_formset': credit_row_formset,
             'clients_data': json.dumps(clients_data),
             'article_services_data': json.dumps(article_services_data),
+            'orders': json.dumps(orders),
         }   
         return render(request, 'calculation_sheet/calculation_sheet_edit.html', context)
     

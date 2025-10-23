@@ -2,15 +2,34 @@
 
 {% block content %}
 {% load i18n %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script>
+// Replace option text 'Неизвестно' with '123' for the select with id 'id_has_order_no'.
+    $(document).ready(function() { 
+        
+        const select = document.getElementById('id_has_order_no');
+        if (!select) return;
+        for (const opt of select.options) {
+            if (opt.text.trim() === 'Неизвестно') {
+                opt.text = '';
+            }
+        }
+    });
+
+</script>
 
 <div class="card">
     <form class="calc-sheet-filter-form" method="get">        
         <div>
             <p>{% translate 'Номер заявки' %}</p>
             {{ calc_sheet_filter.form.order_no }}
-
+            <p>{% translate 'Название р\л' %}</p>
+            {{ calc_sheet_filter.form.calc_sheet_name }}
             <p>{% translate 'Статус заявки в Сбисе' %}</p>
             {{ calc_sheet_filter.form.sbis_approval_status }}
+            <p>{% translate 'Наличие заявки' %}</p>
+            {{ calc_sheet_filter.form.has_order_no }}
         </div>
         <button class="base_button" type="submit">{% translate 'Найти' %}</button>
     </form>
@@ -21,7 +40,13 @@
     {% for calc_sheet in calc_sheets %}    
         <div class="card">
             <a href="{% url 'calculation_sheet:view_info' calc_sheet.id %}">
-                {% translate 'Расчетный лист' %} {% translate 'по заявке' %} {{ calc_sheet.order_no}} {{calc_sheet.sbis_approval_status}}
+                {% translate 'Расчетный лист' %}
+                {% if calc_sheet.order_no %}
+                {% translate 'по заявке' %} {{ calc_sheet.order_no}} 
+                {% else %}
+                "{{ calc_sheet.calc_sheet_name}}"
+                {% endif %}
+                {{calc_sheet.sbis_approval_status}}
             </a>
         </div>        
     {% endfor %}

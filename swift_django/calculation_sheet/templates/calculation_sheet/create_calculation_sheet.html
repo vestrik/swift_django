@@ -408,7 +408,7 @@
         if ($(this).is(':checked')){
             $(".order-data_fetched").hide();
             $(".order-data_user-input").hide();
-            $(".order-data_calc_sheet_name").toggle();
+            $(".order-data_calc_sheet_name").show();
             $("#id_order_no").val("");
             $("#order-data_department").val("");
             $("#order-data_ktk").val("");
@@ -418,8 +418,8 @@
         }
         else {
             $(".order-data_calc_sheet_name").hide()
-            $(".order-data_user-input").toggle();
-            $(".order-data_fetched").toggle()
+            $(".order-data_user-input").show();
+            $(".order-data_fetched").show()
             $("#id_calc_sheet_name").val("");
         }
     })

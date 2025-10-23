@@ -36,7 +36,11 @@
         <div class="order-data">
             <div class="order-data_user-input">
                 <p>{% translate 'Заявка' %}</p>
-                <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.order_no }}" disabled>                
+                <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.order_no }}" disabled>
+                {% if calc_sheet_info.order_no == '' %}
+                <p>{% translate 'Название Р\Л' %}</p>
+                <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.calc_sheet_name }}" disabled>
+                {% endif %}
             </div>
             <div class="order-data_fetched">
                 <div class="div_horizontal">
