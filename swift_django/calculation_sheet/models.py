@@ -116,6 +116,7 @@ class CalculationSheetRow(models.Model):
     calc_row_original_id = models.BigIntegerField(null=True)
     calc_row_delete_from_sol = models.SmallIntegerField(default=0)
     calc_row_need_update_in_sol = models.SmallIntegerField(default=0)
+    calc_row_is_fixed_as_planned = models.SmallIntegerField(default=0)
         
     def __str__(self):
         return f' {self.id} {self.calculation_sheet} {self.calc_row_type} {self.get_contragent_name(self.calc_row_contragent)} {self.get_service_article_name(self.calc_row_service_name)}'

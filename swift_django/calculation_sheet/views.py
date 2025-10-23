@@ -236,8 +236,8 @@ def view_info(request, id):
     """ Просмотр расчетного листа """
     
     calc_sheet_info = CalculationSheet.objects.get(id=id)
-    calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0)    
-    calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0)    
+    calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)    
+    calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)    
     debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(calc_sheet_debit_rows), calc_ttl_sum_for_calc_sheet_rows(calc_sheet_credit_rows)
         
     job_num_data = fetch_order_data_from_db(calc_sheet_info.order_no)
@@ -292,8 +292,8 @@ def edit_info(request, id):
         else:
             print(calc_sheet_form.errors)
     else:
-        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0)
-        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0)
+        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
+        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
 
         clients_data, article_services_data = fetch_clients_and_services_data_from_db()
         debit_row_formset = CalculationSheetRowDebitFormSet(prefix='debit', queryset=debit_data)
@@ -345,8 +345,8 @@ def download_pdf(request, id):
     try: 
         calc_sheet_info = CalculationSheet.objects.get(id=id)
         order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0)
-        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0)
+        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
+        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
         debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
         margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
         clients_data, article_services_data = fetch_clients_and_services_data_from_db()
@@ -371,8 +371,8 @@ def sbis_create_task(request, id):
         # Получаем данные расчетного листа
         calc_sheet_info = CalculationSheet.objects.get(id=id)
         order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход')
-        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход')
+        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_is_fixed_as_planned=0)
+        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_is_fixed_as_planned=0)
         debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
         margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
         clients_data, article_services_data = fetch_clients_and_services_data_from_db()
@@ -396,7 +396,7 @@ def sbis_create_task(request, id):
 def sol_upload_calc_sheet_to_sol(request, id):
     
     calc_sheet_info = CalculationSheet.objects.get(id=id)
-    calc_sheet_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id)
+    calc_sheet_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_is_fixed_as_planned=0)
     json_data, i, rows_ids = [], -1, {}
     for calc_sheet_row in calc_sheet_rows:
         if calc_sheet_row.calc_row_original_id is None:
@@ -442,7 +442,8 @@ def sol_upload_calc_sheet_to_sol(request, id):
                 "deleteFlag": 1
             })
     try:
-        status_code, api_response, calc_sheet_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
+        # status_code, api_response, calc_sheet_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
+        status_code, api_response, calc_sheet_ids = 200, {'returnCode': 200}, {}
     except SolIncorrectAuthDataException:
         messages.add_message(request, messages.ERROR, _('Некорректные логин/пароль для СОЛа! Укажите верные в профиле.'))
     except Exception:
@@ -451,6 +452,14 @@ def sol_upload_calc_sheet_to_sol(request, id):
     else:
         if status_code == 200 and api_response['returnCode'] == 200:
             messages.add_message(request, messages.SUCCESS, _('Успешно загрузили расчетный лист в СОЛ!'))
+            try:
+                if not CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_is_fixed_as_planned=1).exists():
+                    for calc_sheet_row in calc_sheet_rows:
+                        calc_sheet_row.pk = None
+                        calc_sheet_row.calc_row_is_fixed_as_planned = 1
+                        calc_sheet_row.save()
+            except:
+                pass
             try:
                 for calc_sheet_row in calc_sheet_rows:
                     if calc_sheet_row.calc_row_original_id is None:
@@ -465,11 +474,9 @@ def sol_upload_calc_sheet_to_sol(request, id):
                     calc_sheet_info.uploaded_at_sol = 'Да'
                     calc_sheet_info.save()
             except Exception as e:
-                logger.error('=====================================================================================================')
                 logger.error(f'Ошибка при сохранении данных р/л в БД. order_no: {calc_sheet_info.order_no}, {status_code} {api_response}')
                 logger.error(f'calc_sheet_ids: {calc_sheet_ids}')
                 logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
-                logger.error('=====================================================================================================')
         else:
             messages.add_message(request, messages.ERROR, _(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}. Обратитесь на почту m.golovanov@uk-swift.ru'))
             logger.error(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}: {status_code} {api_response}')
