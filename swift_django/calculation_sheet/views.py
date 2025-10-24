@@ -352,8 +352,7 @@ def download_pdf(request, id):
         clients_data, article_services_data = fetch_clients_and_services_data_from_db()
         add_names_to_rows(clients_data, article_services_data, debit_data)
         add_names_to_rows(clients_data, article_services_data, credit_data)
-        _, pdf_bytes = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)
-
+        __, pdf_bytes = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename={calc_sheet_info.order_no}.pdf'
         return response
@@ -442,8 +441,7 @@ def sol_upload_calc_sheet_to_sol(request, id):
                 "deleteFlag": 1
             })
     try:
-        # status_code, api_response, calc_sheet_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
-        status_code, api_response, calc_sheet_ids = 200, {'returnCode': 200}, {}
+        status_code, api_response, calc_sheet_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
     except SolIncorrectAuthDataException:
         messages.add_message(request, messages.ERROR, _('Некорректные логин/пароль для СОЛа! Укажите верные в профиле.'))
     except Exception:
