@@ -1,4 +1,4 @@
 .venv
 __pycache__
-*.log
+swift_django/logs/*.log
 swift_django/static
