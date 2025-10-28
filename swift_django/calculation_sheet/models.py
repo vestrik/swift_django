@@ -85,10 +85,11 @@ class CalculationSheet(models.Model):
         return self.order_no if self.order_no is not None else self.calc_sheet_name
     
     def save(self, *args, **kwargs):
-        if self.order_no is not None:
+        if self.order_no is not None and self.order_no != '':
             self.slug = slugify(f'{self.order_no}', allow_unicode=True)
         else:
-            self.slug = slugify(f'{self.calc_sheet_name}_{self.created_at.date}', allow_unicode=True)
+            self.order_no = None
+            self.slug = slugify(f'{self.calc_sheet_name}_{self.created_at.date()}_{self.created_at.time()}', allow_unicode=True)
         super(CalculationSheet, self).save(*args, **kwargs)
         
     class Meta:

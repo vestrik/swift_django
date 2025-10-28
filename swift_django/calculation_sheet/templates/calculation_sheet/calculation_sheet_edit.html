@@ -14,6 +14,7 @@
                     {% if calc_sheet_info.order_no is not none %}
                         <p>{% translate 'Заявка' %}</p>
                         <input type="text" class="calc-sheet-input" value="{{ calc_sheet_info.order_no }}" disabled>
+                        <div hidden="hidden">{{ calc_sheet_form.order_no }}</div>
                     {% else %}
                     <div class="">                    
                         <p>{% translate 'Выберите заявку из списка' %}:</p>
@@ -464,7 +465,7 @@
         // Если значение из списка       
         if (Orders.includes(order_no)){
             $('#order-do-not-exists-in-sol-error').remove();
-            $("#id_calc_sheet_name").hide()
+            $("#id_calc_sheet_name").parent().hide()
             $.ajax({
                 data: {'job_num': $('#id_order_no').val()},
                 dataType: "json",
@@ -513,7 +514,7 @@
             $("#order-data_client").val("");
             $("#order-data_station_from").val("");
             $("#order-data_station_to").val("");
-            $("#id_calc_sheet_name").show()
+            $("#id_calc_sheet_name").parent().show()
         }
     })
 

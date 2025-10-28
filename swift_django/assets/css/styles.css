@@ -99,7 +99,7 @@ input::-webkit-inner-spin-button {
   margin: 8px 16px;
 }
 
-.calc-sheet-input, input[id='id_calc_sheet_no'] {
+.calc-sheet-input, input[id='id_order_no'], input[id='id_calc_sheet_no'] {
   width: 180px;
   height: 15px;
   padding: 5px;

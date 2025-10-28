@@ -278,21 +278,14 @@ def edit_info(request, id):
         debit_row_formset = CalculationSheetRowDebitFormSet(request.POST, prefix='debit')
         credit_row_formset = CalculationSheetRowCreditFormSet(request.POST, prefix='credit')
         calc_sheet_form = CalculationSheetForm(request.POST, instance=calc_sheet_info)        
-        if calc_sheet_form.is_valid():
-            if calc_sheet_form.has_changed():
-                calc_sheet_form_instance = calc_sheet_form.save(commit=False)
-                if calc_sheet_form_instance.order_no == '':
-                    calc_sheet_form_instance.order_no = None
-                
+        if calc_sheet_form.is_valid():                
             if debit_row_formset.is_valid() and credit_row_formset.is_valid():
-                calc_sheet_form_instance.save()
+                calc_sheet_form.save()
                 if debit_row_formset.has_changed():
                     process_rows_formset(request, debit_row_formset, calc_sheet_id=id, need_deletion=True)
                 if credit_row_formset.has_changed():
                     process_rows_formset(request, credit_row_formset, calc_sheet_id=id, need_deletion=True)
                 return redirect('calculation_sheet:view_info', id)
-        else:
-            print(calc_sheet_form.errors)
     else:
         debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
         credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
