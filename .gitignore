@@ -2,3 +2,4 @@
 __pycache__
 swift_django/logs/*.log
 swift_django/static
+swift_django/flower_db
