@@ -14,12 +14,14 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from decimal import InvalidOperation
 from django.core.exceptions import ObjectDoesNotExist
+from celery import chain
 
 from .filters import CalculationSheetFilter
 from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, CalculationSheetRowCreditForm
 from .models import CalculationSheet, CalculationSheetRow
 from .sbis_worker import SbisWorker
 from .sol_worker import SolWorker, SolIncorrectAuthDataException
+from .tasks import task__calc_sheet_save_sol_data, task__fix_planned_calc_sheet
 
 logger = logging.getLogger(__name__)
 
@@ -392,10 +394,10 @@ def sbis_create_task(request, id):
     return redirect('calculation_sheet:view_info', calc_sheet_info.id)
 
 @login_required(login_url='accounts:login')
-def sol_upload_calc_sheet_to_sol(request, id):
+def sol_upload_calc_sheet_to_sol(request, calc_sheet_id):
     
-    calc_sheet_info = CalculationSheet.objects.get(id=id)
-    calc_sheet_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_is_fixed_as_planned=0)
+    calc_sheet_info = CalculationSheet.objects.get(id=calc_sheet_id)
+    calc_sheet_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=calc_sheet_id, calc_row_is_fixed_as_planned=0)
     json_data, i, rows_ids = [], -1, {}
     for calc_sheet_row in calc_sheet_rows:
         if calc_sheet_row.calc_row_original_id is None:
@@ -441,7 +443,8 @@ def sol_upload_calc_sheet_to_sol(request, id):
                 "deleteFlag": 1
             })
     try:
-        status_code, api_response, calc_sheet_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
+        # status_code, api_response, calc_sheet_rows_sol_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
+        status_code, api_response, calc_sheet_rows_sol_ids = 200, {'returnCode': 200, 'asd': 'asd11'}, {}
     except SolIncorrectAuthDataException:
         messages.add_message(request, messages.ERROR, _('Некорректные логин/пароль для СОЛа! Укажите верные в профиле.'))
     except Exception:
@@ -450,33 +453,12 @@ def sol_upload_calc_sheet_to_sol(request, id):
     else:
         if status_code == 200 and api_response['returnCode'] == 200:
             messages.add_message(request, messages.SUCCESS, _('Успешно загрузили расчетный лист в СОЛ!'))
-            try:
-                if not CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_is_fixed_as_planned=1).exists():
-                    for calc_sheet_row in calc_sheet_rows:
-                        calc_sheet_row.pk = None
-                        calc_sheet_row.calc_row_is_fixed_as_planned = 1
-                        calc_sheet_row.save()
-            except:
-                pass
-            try:
-                for calc_sheet_row in calc_sheet_rows:
-                    if calc_sheet_row.calc_row_original_id is None:
-                        calc_sheet_row.calc_row_original_id = calc_sheet_ids[calc_sheet_row.id]
-                        calc_sheet_row.save()
-                    elif calc_sheet_row.calc_row_original_id is not None and calc_sheet_row.calc_row_need_update_in_sol == 1:
-                        calc_sheet_row.calc_row_need_update_in_sol = 0
-                        calc_sheet_row.save()
-                    elif calc_sheet_row.calc_row_original_id is not None and calc_sheet_row.calc_row_delete_from_sol == 1:
-                        calc_sheet_row.delete()
-                if calc_sheet_info.uploaded_at_sol == 'Нет':
-                    calc_sheet_info.uploaded_at_sol = 'Да'
-                    calc_sheet_info.save()
-            except Exception as e:
-                logger.error(f'Ошибка при сохранении данных р/л в БД. order_no: {calc_sheet_info.order_no}, {status_code} {api_response}')
-                logger.error(f'calc_sheet_ids: {calc_sheet_ids}')
-                logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
+            logger.info(f'Успешно загрузили р/л по заявке  {calc_sheet_info.order_no}. calc_sheet_ids: {calc_sheet_rows_sol_ids}')
+            if not CalculationSheetRow.objects.filter(calculation_sheet_id=calc_sheet_id, calc_row_is_fixed_as_planned=1).exists():
+                chain(task__fix_planned_calc_sheet.si(calc_sheet_id), task__calc_sheet_save_sol_data.si(calc_sheet_id, calc_sheet_rows_sol_ids))()
+            task__calc_sheet_save_sol_data.delay(calc_sheet_id, calc_sheet_rows_sol_ids)
         else:
             messages.add_message(request, messages.ERROR, _(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}. Обратитесь на почту m.golovanov@uk-swift.ru'))
             logger.error(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}: {status_code} {api_response}')
         
-    return redirect('calculation_sheet:view_info', calc_sheet_info.id)
+    return redirect('calculation_sheet:view_info', calc_sheet_id)

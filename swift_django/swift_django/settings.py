@@ -163,8 +163,12 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "================================================================================\n{levelname} {asctime} {module}: {message}",
+            "format": "{levelname} {asctime} {module}: {message}",
             "style": "{",
+        },
+        'celery_formatter': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
         },
     },
     'filters': {
@@ -176,23 +180,47 @@ LOGGING = {
         "file_error": {
             "level": "ERROR",
             "class": "logging.FileHandler",
-            "filename": "ERROR.log",
+            "filename": "logs/ERROR.log",
             "formatter": "verbose",
         },
         "file_info": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "INFO.log",
+            "filename": "logs/INFO.log",
             "formatter": "verbose",
             "filters": ["info_filter"]
-        },        
+        },       
+        'celery_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/celery.log',
+            'formatter': 'celery_formatter',
+        }, 
     },
     "loggers": {
         "": {
             "handlers": ["file_error", "file_info"],
             "level": "INFO",          
-            "propagate": True,
+            "propagate": False,
+        },
+        'celery': {
+            'handlers': ['celery_file'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
     
 }
+
+# CELERY
+CELERY_TIMEZONE = "Europe/Moscow"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_WORKER_CONCURRENCY = 4
+CELERYD_HIJACK_ROOT_LOGGER = False
+
+# REDIS related settings 
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+
+CELERY_FLOWER_URL = 'http://localhost:5555'
+CELERY_FLOWER_BASIC_AUTH = ['admin:password']
