@@ -97,21 +97,6 @@ def add_names_to_rows(clients_data, article_services_data, rows):
         row.calc_row_contragent = clients_data_dict[int(row.calc_row_contragent)]
         row.calc_row_service_name = article_services_dict[int(row.calc_row_service_name)]
 
-
-@login_required(login_url='accounts:login')
-def home(request):    
-    """ Домашняя страница """
-
-    calc_sheets = CalculationSheet.objects.all().order_by('-created_at')
-    calc_sheet_filter = CalculationSheetFilter(request.GET, queryset=calc_sheets)
-    calc_sheets = calc_sheet_filter.qs[:10]
-    context = {
-        'calc_sheets': calc_sheets,
-        'calc_sheet_filter': calc_sheet_filter,
-        'redirect_to': request.path
-    }
-    return render(request, 'calculation_sheet/calculation_sheet_list.html', context)
-
 def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=False):
     """ Сохраняем созданный/измененный формсет. При необходимости удаляем записи в БД. """
     
@@ -139,6 +124,111 @@ def process_rows_formset(request, formset, calc_sheet_id=None, need_deletion=Fal
         if calc_sheet.uploaded_at_sol == 'Да':
             calc_sheet.uploaded_at_sol = 'Данные не обновлены'
             calc_sheet.save()
+            
+def check_if_calc_sheet_exists(request):
+    """ Проверяем, существует ли расчетный лист по заявке """
+    
+    job_num = request.POST.get('job_num', None)
+    try:
+        CalculationSheet.objects.get(order_no=job_num)
+        return_data = {'already_exists': 'true'}
+    except ObjectDoesNotExist:
+        return_data = {'already_exists': 'false'}
+    
+    return JsonResponse(return_data)
+
+def calc_ttl_sum_for_calc_sheet_rows(calc_sheet_rows):    
+    """ Вычисляем общую сумму в таблице по заявке """
+    
+    total_sum = 0
+    for calc_sheet_row in calc_sheet_rows:
+        calc_sheet_row.total = round(calc_sheet_row.calc_row_count * calc_sheet_row.calc_row_single_amount * calc_sheet_row.calc_row_exchange_rate, 2)
+        total_sum += calc_sheet_row.total 
+    return total_sum
+
+def calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum):   
+    """ Вычисляем маржу и ее % по заявке """
+     
+    margin = round(debit_total_sum - credit_total_sum, 2)
+    try:
+        margin_prcnt = f'{round((debit_total_sum - credit_total_sum) / debit_total_sum * 100, 2)} %'
+    except (ZeroDivisionError, InvalidOperation):
+        margin_prcnt = 0    
+    
+    return margin, margin_prcnt
+
+def make_pdf(calc_sheet_dict_info):
+    """ Создаем ПДФ """
+
+    context = {
+        'calc_sheet_info': calc_sheet_dict_info['calc_sheet_info'],
+        'order_department': calc_sheet_dict_info['order_data']['department'],
+        'order_box': calc_sheet_dict_info['order_data']['box'],
+        'order_client': calc_sheet_dict_info['order_data']['client'],
+        'order_station_from': calc_sheet_dict_info['order_data']['station_from'],
+        'order_station_to': calc_sheet_dict_info['order_data']['station_to'],
+        'debit_total_sum': round(calc_sheet_dict_info['debit_total_sum'], 2),
+        'credit_total_sum': round(calc_sheet_dict_info['credit_total_sum'], 2),
+        'margin_total_sum': calc_sheet_dict_info['margin'],
+        'margin_prcnt': calc_sheet_dict_info['margin_prcnt'],
+        'calc_sheet_debit_rows': calc_sheet_dict_info['debit_data'],
+        'calc_sheet_credit_rows': calc_sheet_dict_info['credit_data']
+    }
+    # Рендерим html шаблон с данными
+    html = render_to_string("calculation_sheet/templates_for_pdf_render/calculation_sheet_for_sbis.html", context)
+    # Читаем css
+    with open('assets/css/pdf_styles.css') as file:
+        css_str = file.read()
+    # Формируем ПДФ, сохраняем в память
+    byte_ = HTML(string=html).write_pdf(presentational_hints=True, stylesheets=[CSS(string=css_str)])
+    # Переводим в base64
+    bs = base64.b64encode(byte_).decode('ascii')
+    return bs, byte_
+
+def fetch_data_for_order(request):
+    """ AJAX-ом получаем данные заявки и отдаем для рендера """
+    
+    job_num = request.POST.get('job_num', None)
+    return_data = fetch_order_data_from_db(job_num)
+    return JsonResponse(return_data)
+
+def django_get_calc_sheet_data(calc_sheet_id):
+    calc_sheet_info = CalculationSheet.objects.get(id=calc_sheet_id)    
+    order_data = fetch_order_data_from_db(calc_sheet_info.order_no)    
+    debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=calc_sheet_id, calc_row_type='Доход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
+    credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=calc_sheet_id, calc_row_type='Расход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
+    debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
+    margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
+    clients_data, article_services_data = fetch_clients_and_services_data_from_db()
+    add_names_to_rows(clients_data, article_services_data, debit_data)
+    add_names_to_rows(clients_data, article_services_data, credit_data)
+    
+    calc_sheet_dict_info = {
+        'calc_sheet_info': calc_sheet_info,
+        'order_data': order_data,
+        'debit_data': debit_data,
+        'credit_data': credit_data,
+        'debit_total_sum': debit_total_sum,
+        'credit_total_sum': credit_total_sum,
+        'margin': margin,
+        'margin_prcnt': margin_prcnt,
+    }
+    return calc_sheet_dict_info
+    
+
+@login_required(login_url='accounts:login')
+def home(request):    
+    """ Домашняя страница """
+
+    calc_sheets = CalculationSheet.objects.all().order_by('-created_at')
+    calc_sheet_filter = CalculationSheetFilter(request.GET, queryset=calc_sheets)
+    calc_sheets = calc_sheet_filter.qs[:10]
+    context = {
+        'calc_sheets': calc_sheets,
+        'calc_sheet_filter': calc_sheet_filter,
+        'redirect_to': request.path
+    }
+    return render(request, 'calculation_sheet/calculation_sheet_list.html', context)
 
 @login_required(login_url='accounts:login')
 def create_calculation_sheet(request):
@@ -192,76 +282,28 @@ def create_calculation_sheet(request):
             'article_services_data': json.dumps(article_services_data),
         }
         return render(request, 'calculation_sheet/create_calculation_sheet.html', context)
-    
-    
-def fetch_data_for_order(request):
-    """ AJAX-ом получаем данные заявки и отдаем для рендера """
-    
-    job_num = request.POST.get('job_num', None)
-    return_data = fetch_order_data_from_db(job_num)
-    return JsonResponse(return_data)
-
-def check_if_calc_sheet_exists(request):
-    """ Проверяем, существует ли расчетный лист по заявке """
-    
-    job_num = request.POST.get('job_num', None)
-    try:
-        CalculationSheet.objects.get(order_no=job_num)
-        return_data = {'already_exists': 'true'}
-    except ObjectDoesNotExist:
-        return_data = {'already_exists': 'false'}
-    
-    return JsonResponse(return_data)
-
-def calc_ttl_sum_for_calc_sheet_rows(calc_sheet_rows):    
-    """ Вычисляем общую сумму в таблице по заявке """
-    
-    total_sum = 0
-    for calc_sheet_row in calc_sheet_rows:
-        calc_sheet_row.total = round(calc_sheet_row.calc_row_count * calc_sheet_row.calc_row_single_amount * calc_sheet_row.calc_row_exchange_rate, 2)
-        total_sum += calc_sheet_row.total 
-    return total_sum
-
-def calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum):   
-    """ Вычисляем маржу и ее % по заявке """
-     
-    margin = round(debit_total_sum - credit_total_sum, 2)
-    try:
-        margin_prcnt = f'{round((debit_total_sum - credit_total_sum) / debit_total_sum * 100, 2)} %'
-    except (ZeroDivisionError, InvalidOperation):
-        margin_prcnt = 0    
-    
-    return margin, margin_prcnt
 
 @login_required(login_url='accounts:login')
 def view_info(request, id):
     """ Просмотр расчетного листа """
     
-    calc_sheet_info = CalculationSheet.objects.get(id=id)
-    calc_sheet_debit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)    
-    calc_sheet_credit_rows = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)    
-    debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(calc_sheet_debit_rows), calc_ttl_sum_for_calc_sheet_rows(calc_sheet_credit_rows)
-        
-    job_num_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-    margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
-    clients_data, article_services_data = fetch_clients_and_services_data_from_db()
-    add_names_to_rows(clients_data, article_services_data, calc_sheet_debit_rows)
-    add_names_to_rows(clients_data, article_services_data, calc_sheet_credit_rows)
-    if calc_sheet_info.order_no == None:
-        calc_sheet_info.order_no = ''
+    calc_sheet_dict_info = django_get_calc_sheet_data(calc_sheet_id=id)
+
+    if calc_sheet_dict_info['calc_sheet_info'].order_no == None:
+        calc_sheet_dict_info['calc_sheet_info'].order_no = ''
     context = {
-        'calc_sheet_info': calc_sheet_info,
-        'order_department': job_num_data['department'],
-        'order_box': job_num_data['box'],
-        'order_client': job_num_data['client'],
-        'order_station_from': job_num_data['station_from'],
-        'order_station_to': job_num_data['station_to'],
-        'debit_total_sum': round(debit_total_sum, 2),
-        'credit_total_sum': round(credit_total_sum, 2),
-        'margin_total_sum': margin,
-        'margin_prcnt': margin_prcnt,
-        'calc_sheet_debit_rows': calc_sheet_debit_rows,
-        'calc_sheet_credit_rows': calc_sheet_credit_rows
+        'calc_sheet_info': calc_sheet_dict_info['calc_sheet_info'],
+        'order_department': calc_sheet_dict_info['order_data']['department'],
+        'order_box': calc_sheet_dict_info['order_data']['box'],
+        'order_client': calc_sheet_dict_info['order_data']['client'],
+        'order_station_from': calc_sheet_dict_info['order_data']['station_from'],
+        'order_station_to': calc_sheet_dict_info['order_data']['station_to'],
+        'debit_total_sum': round(calc_sheet_dict_info['debit_total_sum'], 2),
+        'credit_total_sum': round(calc_sheet_dict_info['credit_total_sum'], 2),
+        'margin_total_sum': calc_sheet_dict_info['margin'],
+        'margin_prcnt': calc_sheet_dict_info['margin_prcnt'],
+        'calc_sheet_debit_rows': calc_sheet_dict_info['debit_data'],
+        'calc_sheet_credit_rows': calc_sheet_dict_info['credit_data']
     }
     
     return render(request, 'calculation_sheet/calculation_sheet_info.html', context)    
@@ -308,47 +350,13 @@ def edit_info(request, id):
         }   
         return render(request, 'calculation_sheet/calculation_sheet_edit.html', context)
     
-def make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data):
-    """ Создаем ПДФ """
-
-    context = {
-        'calc_sheet_info': calc_sheet_info,
-        'order_department': order_data['department'],
-        'order_box': order_data['box'],
-        'order_client': order_data['client'],
-        'order_station_from': order_data['station_from'],
-        'order_station_to': order_data['station_to'],
-        'debit_total_sum': round(debit_total_sum, 2),
-        'credit_total_sum': round(credit_total_sum, 2),
-        'margin_total_sum': margin,
-        'margin_prcnt': margin_prcnt,
-        'calc_sheet_debit_rows': debit_data,
-        'calc_sheet_credit_rows': credit_data
-    }
-    # Рендерим html шаблон с данными
-    html = render_to_string("calculation_sheet/templates_for_pdf_render/calculation_sheet_for_sbis.html", context)
-    # Читаем css
-    with open('assets/css/pdf_styles.css') as file:
-        css_str = file.read()
-    # Формируем ПДФ, сохраняем в память
-    byte_ = HTML(string=html).write_pdf(presentational_hints=True, stylesheets=[CSS(string=css_str)])
-    # Переводим в base64
-    bs = base64.b64encode(byte_).decode('ascii')
-    return bs, byte_
-
+@login_required(login_url='accounts:login')
 def download_pdf(request, id):
     try: 
-        calc_sheet_info = CalculationSheet.objects.get(id=id)
-        order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
-        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_delete_from_sol=0, calc_row_is_fixed_as_planned=0)
-        debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
-        margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
-        clients_data, article_services_data = fetch_clients_and_services_data_from_db()
-        add_names_to_rows(clients_data, article_services_data, debit_data)
-        add_names_to_rows(clients_data, article_services_data, credit_data)
-        __, pdf_bytes = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)
+        calc_sheet_dict_info = django_get_calc_sheet_data(calc_sheet_id=id)
+        __, pdf_bytes = make_pdf(calc_sheet_dict_info)
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        calc_sheet_info = calc_sheet_dict_info['calc_sheet_info']
         response['Content-Disposition'] = f'attachment; filename={calc_sheet_info.order_no}.pdf'
         return response
     except Exception as e:
@@ -363,17 +371,9 @@ def sbis_create_task(request, id):
     
     try:
         # Получаем данные расчетного листа
-        calc_sheet_info = CalculationSheet.objects.get(id=id)
-        order_data = fetch_order_data_from_db(calc_sheet_info.order_no)
-        debit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Доход', calc_row_is_fixed_as_planned=0)
-        credit_data = CalculationSheetRow.objects.filter(calculation_sheet_id=id, calc_row_type='Расход', calc_row_is_fixed_as_planned=0)
-        debit_total_sum, credit_total_sum = calc_ttl_sum_for_calc_sheet_rows(debit_data), calc_ttl_sum_for_calc_sheet_rows(credit_data)
-        margin, margin_prcnt = calc_margin_for_calc_sheet(debit_total_sum, credit_total_sum)
-        clients_data, article_services_data = fetch_clients_and_services_data_from_db()
-        add_names_to_rows(clients_data, article_services_data, debit_data)
-        add_names_to_rows(clients_data, article_services_data, credit_data)
-        pdf, _ = make_pdf(calc_sheet_info, order_data, debit_total_sum, credit_total_sum, margin, margin_prcnt, debit_data, credit_data)   
-               
+        calc_sheet_dict_info = django_get_calc_sheet_data(calc_sheet_id=id)
+        pdf, _ = make_pdf(calc_sheet_dict_info)   
+        calc_sheet_info = calc_sheet_dict_info['calc_sheet_info']
         sbis_href, sbis_doc_id = SbisWorker(request.user).create_approval_for_calc_list(calc_sheet_info.order_no, pdf)
 
         calc_sheet_info.sbis_href = sbis_href
@@ -436,8 +436,7 @@ def sol_upload_calc_sheet_to_sol(request, calc_sheet_id):
                 "deleteFlag": 1
             })
     try:
-        # status_code, api_response, calc_sheet_rows_sol_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
-        status_code, api_response, calc_sheet_rows_sol_ids = 200, {'returnCode': 200, 'asd': 'asd11'}, {}
+        status_code, api_response, calc_sheet_rows_sol_ids = SolWorker(request.user).upload_calc_rows(json_data, rows_ids)
     except SolIncorrectAuthDataException:
         messages.add_message(request, messages.ERROR, _('Некорректные логин/пароль для СОЛа! Укажите верные в профиле.'))
     except Exception:
