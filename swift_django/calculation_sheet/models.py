@@ -139,4 +139,19 @@ class CalculationSheetRow(models.Model):
     class Meta:
         verbose_name = 'Доход/Расход'
         verbose_name_plural = 'Доход/Расход'
+        
+        
+class CalculationSheetPdf(models.Model):
+    created_by = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now)
+    edited_by = models.CharField(max_length=100)
+    edited_at = models.DateTimeField(default=timezone.now)
+    calculation_sheet = models.ForeignKey(CalculationSheet, on_delete=models.DO_NOTHING, null=True)
+    planned_calc_sheet_pdf_bytes = models.TextField(blank=True, null=True)
+    planned_calc_sheet_pdf_is_uploaded = models.SmallIntegerField(default=0)
+    actual_calc_sheet_pdf_bytes = models.TextField(blank=True, null=True)
+    actual_calc_sheet_pdf_is_uploaded = models.SmallIntegerField(default=0)
     
+    class Meta:
+        verbose_name = 'ПДФ по р\л'
+        verbose_name_plural = 'ПДФ по р\л'

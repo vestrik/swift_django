@@ -15,7 +15,7 @@ from .forms import CalculationSheetForm, CalculationSheetRowDebitForm, Calculati
 from .models import CalculationSheet, CalculationSheetRow
 from .sbis_worker import SbisWorker
 from .sol_worker import SolWorker, SolIncorrectAuthDataException
-from .tasks import task__calc_sheet_save_sol_data, task__fix_planned_calc_sheet
+from .tasks import task__calc_sheet_save_sol_data, task__fix_planned_calc_sheet, task__save_pdf_to_db
 from .view_functions import fetch_orders_from_db, fetch_clients_and_services_data_from_db, fetch_order_data_from_db, process_rows_formset, make_pdf, django_get_calc_sheet_data
 
 logger = logging.getLogger(__name__)
@@ -271,8 +271,16 @@ def sol_upload_calc_sheet_to_sol(request, calc_sheet_id):
             messages.add_message(request, messages.SUCCESS, _('Успешно загрузили расчетный лист в СОЛ!'))
             logger.info(f'Успешно загрузили р/л по заявке  {calc_sheet_info.order_no}. calc_sheet_ids: {calc_sheet_rows_sol_ids}')
             if not CalculationSheetRow.objects.filter(calculation_sheet_id=calc_sheet_id, calc_row_is_fixed_as_planned=1).exists():
-                chain(task__fix_planned_calc_sheet.si(calc_sheet_id), task__calc_sheet_save_sol_data.si(calc_sheet_id, calc_sheet_rows_sol_ids))()
-            task__calc_sheet_save_sol_data.delay(calc_sheet_id, calc_sheet_rows_sol_ids)
+                chain(
+                    task__calc_sheet_save_sol_data.si(calc_sheet_id, calc_sheet_rows_sol_ids), 
+                    task__fix_planned_calc_sheet.si(calc_sheet_id),
+                    task__save_pdf_to_db.si(str(request.user), calc_sheet_id=calc_sheet_id, pdf_type='planned')
+                )()
+            else:
+                chain(
+                    task__calc_sheet_save_sol_data.si(calc_sheet_id, calc_sheet_rows_sol_ids), 
+                    task__save_pdf_to_db.si(str(request.user), calc_sheet_id=calc_sheet_id, pdf_type='actual')
+                )()
         else:
             messages.add_message(request, messages.ERROR, _(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}. Обратитесь на почту m.golovanov@uk-swift.ru'))
             logger.error(f'Ошибка при создании р/л по заявке {calc_sheet_info.order_no}: {status_code} {api_response}')
