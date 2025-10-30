@@ -64,7 +64,7 @@ def task__save_pdf_to_db(self, user, calc_sheet_id, pdf_type):
         calc_sheet_dict_info = django_get_calc_sheet_data(calc_sheet_id, calc_row_is_fixed_as_planned)
         if calc_sheet_dict_info['calc_sheet_info'].order_no == None:
             calc_sheet_dict_info['calc_sheet_info'].order_no = ''
-        __, pdf_bytes = make_pdf(calc_sheet_dict_info)
+        base64_pdf, _ = make_pdf(calc_sheet_dict_info)
 
         calc_sheet_pdf, is_created = CalculationSheetPdf.objects.get_or_create(calculation_sheet=calc_sheet_dict_info['calc_sheet_info'])
         if is_created:
@@ -73,9 +73,9 @@ def task__save_pdf_to_db(self, user, calc_sheet_id, pdf_type):
         calc_sheet_pdf.edited_by = str(user)
         calc_sheet_pdf.edited_at = timezone.now()
         if pdf_type == 'planned':
-            calc_sheet_pdf.planned_calc_sheet_pdf_bytes = pdf_bytes
+            calc_sheet_pdf.planned_calc_sheet_pdf_base64 = base64_pdf
         elif pdf_type == 'actual':
-            calc_sheet_pdf.actual_calc_sheet_pdf_bytes = pdf_bytes
+            calc_sheet_pdf.actual_calc_sheet_pdf_base64 = base64_pdf
         calc_sheet_pdf.save()
         logger.info(f'Успешно сохранили в БД pdf (тип={pdf_type}) по заявке {calc_sheet_dict_info['calc_sheet_info'].order_no}!')
     except Exception as e:

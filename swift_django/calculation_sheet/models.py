@@ -147,9 +147,9 @@ class CalculationSheetPdf(models.Model):
     edited_by = models.CharField(max_length=100)
     edited_at = models.DateTimeField(default=timezone.now)
     calculation_sheet = models.ForeignKey(CalculationSheet, on_delete=models.DO_NOTHING, null=True)
-    planned_calc_sheet_pdf_bytes = models.TextField(blank=True, null=True)
+    planned_calc_sheet_pdf_base64 = models.TextField(blank=True, null=True)
     planned_calc_sheet_pdf_is_uploaded = models.SmallIntegerField(default=0)
-    actual_calc_sheet_pdf_bytes = models.TextField(blank=True, null=True)
+    actual_calc_sheet_pdf_base64 = models.TextField(blank=True, null=True)
     actual_calc_sheet_pdf_is_uploaded = models.SmallIntegerField(default=0)
     
     class Meta:
