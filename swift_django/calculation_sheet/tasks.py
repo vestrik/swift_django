@@ -77,8 +77,8 @@ def task__save_pdf_to_db(self, user, calc_sheet_id, pdf_type):
         elif pdf_type == 'actual':
             calc_sheet_pdf.actual_calc_sheet_pdf_base64 = base64_pdf
         calc_sheet_pdf.save()
-        logger.info(f'Успешно сохранили в БД pdf (тип={pdf_type}) по заявке {calc_sheet_dict_info['calc_sheet_info'].order_no}!')
+        logger.info(f"Успешно сохранили в БД pdf (тип={pdf_type}) по заявке {calc_sheet_dict_info['calc_sheet_info'].order_no}!")
     except Exception as e:
-        logger.error(f'Ошибка при сохранении в БД pdf по заявке (тип={pdf_type}) {calc_sheet_dict_info['calc_sheet_info'].order_no}. pdf_type: {pdf_type}')
+        logger.error(f"Ошибка при сохранении в БД pdf по заявке (тип={pdf_type}) {calc_sheet_dict_info['calc_sheet_info'].order_no}. pdf_type: {pdf_type}")
         logger.error(''.join(traceback.format_exception(type(e), value=e, tb=e.__traceback__, chain=False, limit=4)))
         raise self.retry(exc=e)
